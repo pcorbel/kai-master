@@ -1,0 +1,11 @@
+{
+  "name": "Kai-Master",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "forwardPorts": [3000],
+  "postCreateCommand": "yarn",
+  "customizations": {
+    "vscode": {
+      "extensions": ["vue.volar", "esbenp.prettier-vscode"]
+    }
+  }
+}
