@@ -90,9 +90,16 @@ export default defineNuxtConfig({
       screenshots: [
         {
           src: "screenshot-narrow.png",
-          sizes: "1082x2402",
+          sizes: "1080x2400",
           type: "image/png",
           form_factor: "narrow",
+          label: "Home",
+        },
+        {
+          src: "screenshot-wide.png",
+          sizes: "2840x1692",
+          type: "image/png",
+          form_factor: "wide",
           label: "Home",
         },
       ],
