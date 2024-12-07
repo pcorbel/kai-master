@@ -6,7 +6,7 @@ const BASE_DIR = "en/xhtml/lw/*/";
 export async function fetchBookdata(code: string) {
   // Fetch and unzip book file
   const url = `/api/books/${code}`;
-  const response = await $fetch(url, {
+  const response = await fetchWithRetry(url, {
     responseType: "blob",
     method: "GET",
   });
@@ -531,4 +531,65 @@ export async function extractKaiMap(
 
 export async function extractLicense(html: string): Promise<GenericSection> {
   return extractSection(html, "license") as Promise<GenericSection>;
+}
+
+// Utility function to delay execution
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Helper function to get error message regardless of error type
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+}
+
+// Custom fetch function with retry logic
+async function fetchWithRetry(
+  url: string,
+  options: any = {},
+  maxRetries = 3,
+  baseDelay = 1000
+) {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await $fetch(url, {
+        ...options,
+        retry: attempt + 1,
+        onResponse({ response }: { response: any }) {
+          // Validate content length if available
+          const expectedLength = response.headers.get("content-length");
+          const actualLength = response._data?.length;
+
+          if (
+            expectedLength &&
+            actualLength &&
+            expectedLength !== actualLength.toString()
+          ) {
+            throw new Error("Content length mismatch");
+          }
+        },
+      });
+
+      return response;
+    } catch (error: unknown) {
+      lastError = error;
+      console.error(`Attempt ${attempt + 1} failed:`, error);
+
+      if (attempt === maxRetries - 1) {
+        throw new Error(
+          `Failed after ${maxRetries} attempts: ${getErrorMessage(error)}`
+        );
+      }
+
+      // Exponential backoff with jitter
+      const jitter = Math.random() * 200;
+      const waitTime = baseDelay * Math.pow(2, attempt) + jitter;
+      await delay(waitTime);
+    }
+  }
+
+  throw new Error(`Operation failed: ${getErrorMessage(lastError)}`);
 }
