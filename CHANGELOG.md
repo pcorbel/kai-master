@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/pcorbel/kai-master/compare/v1.0.0...v1.1.0) (2024-12-07)
+
+
+### Features
+
+* :goal_net: add fetchWithRetry while downloading book ([5e38bc8](https://github.com/pcorbel/kai-master/commit/5e38bc853ad276e966a5258226ea7682ab7160bf))
+* :wrench: update pwa screenshots ([9d0709f](https://github.com/pcorbel/kai-master/commit/9d0709f01bce953db5ef181c66c150bdc78c3095))
+
 # 1.0.0 (2024-12-06)
 
 
