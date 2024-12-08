@@ -4,8 +4,13 @@ import { defineStore } from "pinia";
 export const useAppStore = defineStore("app", {
   // Define the initial state of the store
   state: () => ({
-    isLicenseAccepted: false as boolean,
     downloadInProgress: false as boolean,
+    isLicenseAccepted: false as boolean,
+    navigation: {
+      showAppbar: false as boolean,
+      showBottomNav: false as boolean,
+      title: "" as string,
+    },
     book: {
       id: 1,
       title: "Flight from the Dark",
@@ -14,12 +19,6 @@ export const useAppStore = defineStore("app", {
       disciplines: 5,
       isInitialized: false,
     } as Book,
-    // Navigation state
-    navigation: {
-      showAppbar: false as boolean,
-      showBottomNav: false as boolean,
-      title: "" as string,
-    },
     // Array of available Lone Wolf books
     books: [
       {
@@ -427,6 +426,34 @@ export const useAppStore = defineStore("app", {
 
   // Define actions to mutate the state
   actions: {
+    // Initialize the app and load saved data
+    async initialize() {
+      const storage = createStorage({
+        name: "kai-master",
+        storeName: "app",
+      });
+
+      // Wait for app storage to initialize
+      await storage.waitForInit();
+
+      // If we have a current book, wait for its storage to initialize
+      if (this.book?.code) {
+        const bookStorage = getBookStorage(this.book.code);
+        await bookStorage.waitForInit();
+
+        // Reload book data after initialization
+        const savedBook = bookStorage.getItem("bookData");
+        if (savedBook) {
+          this.book = savedBook;
+        }
+      }
+
+      // Setup the watcher after initialization
+      this.$subscribe(() => {
+        this.saveBook();
+      });
+    },
+
     // Fetch book data and initialize the current book
     async fetchBook() {
       const _book = this.books.find(
@@ -514,15 +541,24 @@ export const useAppStore = defineStore("app", {
     },
 
     // Load a book by its code
-    loadBook(code: string) {
-      this.saveBook();
-      this.book = this.books.find((book) => book.code === code) as Book;
+    async loadBook(code: string) {
+      await this.saveBook();
+
+      const bookStorage = getBookStorage(code);
+      await bookStorage.waitForInit();
+      const savedBook = bookStorage.getItem("bookData");
+
+      if (savedBook) {
+        this.book = savedBook;
+      } else {
+        this.book = this.books.find((book) => book.code === code) as Book;
+      }
     },
 
-    // Save the current book state
-    saveBook() {
-      const index = this.books.findIndex((book) => book.id === this.book.id);
-      this.books[index] = this.book;
+    // Save the current book
+    async saveBook() {
+      const bookStorage = getBookStorage(this.book.code);
+      bookStorage.setItem("bookData", this.book);
     },
 
     // Handle Action Chart mutations
@@ -641,6 +677,10 @@ export const useAppStore = defineStore("app", {
 
   // Enable state persistence
   persist: {
-    storage: indexedDBStorage,
+    storage: createStorage({
+      name: "kai-master",
+      storeName: "app",
+    }),
+    pick: ["isLicenseAccepted", "downloadInProgress", "navigation"],
   },
 });

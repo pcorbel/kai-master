@@ -17,6 +17,7 @@
     "firebase-admin": "13.0.1",
     "firebase-functions": "6.1.1",
     "jszip": "3.10.1",
+    "localforage": "1.10.0",
     "nuxt": "3.14.1592",
     "nuxt-lodash": "2.5.3",
     "pinia": "2.3.0",

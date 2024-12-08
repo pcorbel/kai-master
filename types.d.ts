@@ -141,6 +141,11 @@ declare global {
   interface CombatResultsTable {
     [randomNumber: number]: CombatResultsRow;
   }
+
+  interface StorageConfig {
+    name: string;
+    storeName: string;
+  }
 }
 
 export {};
