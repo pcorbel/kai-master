@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/pcorbel/kai-master/compare/v1.1.0...v1.1.1) (2024-12-08)
+
+
+### Performance Improvements
+
+* :zap: move to localforage with one storage per book ([e5fab3b](https://github.com/pcorbel/kai-master/commit/e5fab3b6c58b33c60c3d41af8e11112e42f5ccd2))
+
 # [1.1.0](https://github.com/pcorbel/kai-master/compare/v1.0.0...v1.1.0) (2024-12-07)
 
 
