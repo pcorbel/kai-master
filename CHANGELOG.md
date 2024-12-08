@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/pcorbel/kai-master/compare/v1.1.1...v1.1.2) (2024-12-08)
+
+
+### Bug Fixes
+
+* :bug: move store initialization in plugin ([9022c93](https://github.com/pcorbel/kai-master/commit/9022c93f2afdd327d3d638c39f16b680164634f9))
+
 ## [1.1.1](https://github.com/pcorbel/kai-master/compare/v1.1.0...v1.1.1) (2024-12-08)
 
 
