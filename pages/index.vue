@@ -18,10 +18,10 @@
     <v-row class="flex-grow-1" align="center">
       <v-col cols="12">
         <v-carousel
-          v-model="model"
+          v-model="currentBookIndex"
           class="elevation-0"
           hide-delimiters
-          @update:model-value="app.loadBook(app.books[model].code)"
+          @update:model-value="app.loadBook(app.books[currentBookIndex].code)"
         >
           <template v-slot:prev="{ props }">
             <v-btn icon @click="props.onClick">
@@ -122,8 +122,8 @@
 // Define constants
 const app = useAppStore();
 const router = useRouter();
-const model = ref(app.book.id - 1);
 const showNewGameDialog = ref(false);
+const currentBookIndex = ref(app.book.id - 1);
 
 // Setup navigation state
 app.navigation.showAppbar = false;

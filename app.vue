@@ -21,9 +21,4 @@ theme.global.name.value = colorMode.value;
 watch(colorMode, (system) => {
   theme.global.name.value = system.value;
 });
-
-// initial store
-onMounted(async () => {
-  await app.initialize();
-});
 </script>
