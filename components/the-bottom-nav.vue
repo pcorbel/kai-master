@@ -23,7 +23,7 @@
   </v-bottom-navigation>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 // Define constants
 const app = useAppStore();
 const router = useRouter();

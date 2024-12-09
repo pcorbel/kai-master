@@ -2,7 +2,7 @@
   <!-- The App Bar -->
   <v-app-bar class="custom-border" color="background" flat>
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
-    <v-toolbar-title class="font-weight-black">
+    <v-toolbar-title class="font-weight-black text-truncate pr-3">
       {{ app.navigation.title }}
     </v-toolbar-title>
   </v-app-bar>
@@ -16,14 +16,9 @@
     touchless
   >
     <v-list>
-      <v-list-item to="/">
-        <template v-slot:prepend>
-          <v-icon color="primary" icon="mdi-book-multiple" />
-        </template>
-        <v-list-item-title> Books </v-list-item-title>
-      </v-list-item>
+      <v-list-subheader> {{ app.book.title }} </v-list-subheader>
 
-      <v-list-group :value="false">
+      <v-list-group>
         <template v-slot:activator="{ props }">
           <v-list-item v-bind="props">
             <template v-slot:prepend>
@@ -33,48 +28,115 @@
           </v-list-item>
         </template>
 
-        <v-list-item to="/dedication">
+        <v-list-item @click="router.push('/dedication')">
           {{ app.book.data.dedication.id }}
         </v-list-item>
 
-        <v-list-item to="/acknowledgements">
+        <v-list-item @click="router.push('/acknowledgements')">
           {{ app.book.data.acknowledgements.id }}
         </v-list-item>
 
-        <v-list-item to="/the-story-so-far">
+        <v-list-item @click="router.push('/the-story-so-far')">
           {{ app.book.data.theStorySoFar.id }}
         </v-list-item>
 
-        <v-list-item to="/the-game-rules">
+        <v-list-item @click="router.push('/the-game-rules')">
           {{ app.book.data.theGameRules.id }}
         </v-list-item>
 
-        <v-list-item to="/kai-disciplines">
+        <v-list-item @click="router.push('/kai-disciplines')">
           {{ app.book.data.kaiDisciplines.id }}
         </v-list-item>
 
-        <v-list-item to="/equipment">
+        <v-list-item @click="router.push('/equipment')">
           {{ app.book.data.equipment.id }}
         </v-list-item>
 
-        <v-list-item to="/combat-rules">
+        <v-list-item @click="router.push('/combat-rules')">
           {{ app.book.data.combatRules.id }}
         </v-list-item>
 
-        <v-list-item to="/levels-of-kai-training">
+        <v-list-item @click="router.push('/levels-of-kai-training')">
           {{ app.book.data.kaiLevels.id }}
         </v-list-item>
 
-        <v-list-item to="/kai-wisdom">
+        <v-list-item
+          v-if="app.book.serie === 'Magnakai'"
+          @click="router.push('/lore-circles')"
+        >
+          {{ app.book.data.loreCircles.id }}
+        </v-list-item>
+
+        <v-list-item
+          v-if="['Magnakai', 'Grand Master'].includes(app.book.serie)"
+          @click="router.push('/improved-disciplines')"
+        >
+          {{ app.book.data.improvedDisciplines.id }}
+        </v-list-item>
+
+        <v-list-item @click="router.push('/kai-wisdom')">
           {{ app.book.data.kaiWisdom.id }}
         </v-list-item>
       </v-list-group>
 
-      <v-list-item to="/license">
+      <v-list-group>
+        <template v-slot:activator="{ props }">
+          <v-list-item v-bind="props">
+            <template v-slot:prepend>
+              <v-icon color="primary" icon="mdi-book-arrow-right" />
+            </template>
+            <v-list-item-title> Sections </v-list-item-title>
+          </v-list-item>
+        </template>
+
+        <v-list-item
+          v-for="section in _orderBy(
+            app.book.data.numberedSections,
+            (s) => parseInt(s.id.replace('Section ', '')),
+            'asc'
+          )"
+          :key="section.id"
+          @click="router.push(`/section-${section.id.replace('Section ', '')}`)"
+        >
+          {{ section.id }}
+        </v-list-item>
+      </v-list-group>
+
+      <v-list-item @click="router.push('/action-chart')">
+        <template v-slot:prepend>
+          <v-icon color="primary" icon="mdi-account" />
+        </template>
+        <v-list-item-title> Action Chart </v-list-item-title>
+      </v-list-item>
+
+      <v-list-item @click="router.push('/random-number-table')">
+        <template v-slot:prepend>
+          <v-icon color="primary" icon="mdi-dice-multiple" />
+        </template>
+        <v-list-item-title> Random Number Table </v-list-item-title>
+      </v-list-item>
+
+      <v-list-item @click="router.push('/history')">
+        <template v-slot:prepend>
+          <v-icon color="primary" icon="mdi-history" />
+        </template>
+        <v-list-item-title> History </v-list-item-title>
+      </v-list-item>
+
+      <v-list-item @click="router.push('/license')">
         <template v-slot:prepend>
           <v-icon color="primary" icon="mdi-license" />
         </template>
         <v-list-item-title> License </v-list-item-title>
+      </v-list-item>
+
+      <v-list-subheader> Kai-Master </v-list-subheader>
+
+      <v-list-item @click="router.push('/')">
+        <template v-slot:prepend>
+          <v-icon color="primary" icon="mdi-book-multiple" />
+        </template>
+        <v-list-item-title> Books </v-list-item-title>
       </v-list-item>
     </v-list>
 
@@ -98,9 +160,10 @@
   </v-navigation-drawer>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 // Define constants
 const app = useAppStore();
+const router = useRouter();
 const showDrawer = ref(false);
 </script>
 
