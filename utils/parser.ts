@@ -346,6 +346,16 @@ export async function extractSection(
       content = content.replace(/ENDURANCE/g, "ENDURANCE");
       content = content.replace(/COMBAT SKILL/g, "COMBAT SKILL");
 
+      // Clean up HTML entities
+      content = content.replace(/&nbsp;/g, " ");
+      content = content.replace(/&amp;/g, "&");
+      content = content.replace(/&lt;/g, "<");
+      content = content.replace(/&gt;/g, ">");
+      content = content.replace(/&quot;/g, '"');
+      content = content.replace(/&#39;/g, "'");
+      content = content.replace(/&mdash;/g, "—");
+      content = content.replace(/&ndash;/g, "—");
+
       // Clean up remaining HTML
       content = content.replace(
         /<(?!\/?(turn-to-link|action-chart-link|random-number-table-link|image-component))[^>]+>/g,
