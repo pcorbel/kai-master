@@ -117,7 +117,7 @@
     >
       <div class="align-center d-flex flex-column">
         <v-progress-circular class="mb-4" color="primary" indeterminate />
-        <span class="font-weight-bold text-center text-text ">
+        <span class="font-weight-bold text-center text-text">
           Downloading {{ app.book.title }}
         </span>
       </div>
