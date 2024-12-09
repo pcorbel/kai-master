@@ -1,3 +1,21 @@
+# [1.2.0](https://github.com/pcorbel/kai-master/compare/v1.1.2...v1.2.0) (2024-12-09)
+
+
+### Bug Fixes
+
+* :bug: cleanup some html entities ([4c9313a](https://github.com/pcorbel/kai-master/commit/4c9313ab4fb3158343839c5e059c40c1d212c8b6))
+
+
+### Features
+
+* :lipstick: revamp navigation drawer ([efe2ce7](https://github.com/pcorbel/kai-master/commit/efe2ce7ff9edacb02670ff69a0ae54206ee24d47))
+* :lipstick: update download overlay ([ff94f5c](https://github.com/pcorbel/kai-master/commit/ff94f5c0dcb730d11e327cbcc3f511aad005de37))
+
+
+### Performance Improvements
+
+* :zap: improve storage performance ([a163b1e](https://github.com/pcorbel/kai-master/commit/a163b1e79f201e20de129a3af8999bb9ae996ad0))
+
 ## [1.1.2](https://github.com/pcorbel/kai-master/compare/v1.1.1...v1.1.2) (2024-12-08)
 
 
