@@ -143,8 +143,11 @@ declare global {
   }
 
   interface StorageConfig {
-    name: string;
     storeName: string;
+  }
+  
+  interface CacheData {
+    [key: string]: any;
   }
 }
 

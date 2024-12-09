@@ -4,6 +4,7 @@ import { defineStore } from "pinia";
 export const useAppStore = defineStore("app", {
   // Define the initial state of the store
   state: () => ({
+    currentBookCode: "01fftd" as string,
     downloadInProgress: false as boolean,
     isLicenseAccepted: false as boolean,
     navigation: {
@@ -428,23 +429,21 @@ export const useAppStore = defineStore("app", {
   actions: {
     // Initialize the app and load saved data
     async initialize() {
-      const storage = createStorage({
-        name: "kai-master",
-        storeName: "app",
-      });
+      const storage = createStorage();
 
       // Wait for app storage to initialize
       await storage.waitForInit();
 
       // If we have a current book, wait for its storage to initialize
-      if (this.book?.code) {
-        const bookStorage = getBookStorage(this.book.code);
-        await bookStorage.waitForInit();
-
-        // Reload book data after initialization
-        const savedBook = bookStorage.getItem("bookData");
+      if (this.currentBookCode) {
+        const savedBook = storage.getItem(getBookKey(this.currentBookCode));
         if (savedBook) {
           this.book = savedBook;
+        } else {
+          // If no saved data, load the book from the default books array
+          this.book = this.books.find(
+            (book) => book.code === this.currentBookCode
+          ) as Book;
         }
       }
 
@@ -540,25 +539,25 @@ export const useAppStore = defineStore("app", {
       this.saveBook();
     },
 
+    // Save the current book
+    async saveBook() {
+      const storage = createStorage();
+      storage.setItem(getBookKey(this.book.code), this.book);
+    },
+
     // Load a book by its code
     async loadBook(code: string) {
       await this.saveBook();
+      this.currentBookCode = code;
 
-      const bookStorage = getBookStorage(code);
-      await bookStorage.waitForInit();
-      const savedBook = bookStorage.getItem("bookData");
+      const storage = createStorage();
+      const savedBook = storage.getItem(getBookKey(code));
 
       if (savedBook) {
         this.book = savedBook;
       } else {
         this.book = this.books.find((book) => book.code === code) as Book;
       }
-    },
-
-    // Save the current book
-    async saveBook() {
-      const bookStorage = getBookStorage(this.book.code);
-      bookStorage.setItem("bookData", this.book);
     },
 
     // Handle Action Chart mutations
@@ -677,10 +676,11 @@ export const useAppStore = defineStore("app", {
 
   // Enable state persistence
   persist: {
-    storage: createStorage({
-      name: "kai-master",
-      storeName: "app",
-    }),
-    pick: ["isLicenseAccepted", "downloadInProgress", "navigation"],
+    pick: [
+      "currentBookCode",
+      "downloadInProgress",
+      "isLicenseAccepted",
+      "navigation",
+    ],
   },
 });
