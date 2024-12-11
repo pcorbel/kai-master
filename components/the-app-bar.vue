@@ -16,6 +16,17 @@
     touchless
   >
     <v-list>
+      <v-list-subheader> Kai-Master </v-list-subheader>
+
+      <v-list-item @click="router.push('/')">
+        <template v-slot:prepend>
+          <v-icon color="primary" icon="mdi-home" />
+        </template>
+        <v-list-item-title> Library </v-list-item-title>
+      </v-list-item>
+
+      <v-divider />
+
       <v-list-subheader> {{ app.book.title }} </v-list-subheader>
 
       <v-list-group>
@@ -129,15 +140,6 @@
         </template>
         <v-list-item-title> License </v-list-item-title>
       </v-list-item>
-
-      <v-list-subheader> Kai-Master </v-list-subheader>
-
-      <v-list-item @click="router.push('/')">
-        <template v-slot:prepend>
-          <v-icon color="primary" icon="mdi-book-multiple" />
-        </template>
-        <v-list-item-title> Books </v-list-item-title>
-      </v-list-item>
     </v-list>
 
     <template v-slot:append>
@@ -147,12 +149,12 @@
           <v-btn
             class="no-uppercase"
             block
-            href="https://github.com/pcorbel/kai-master"
-            prepend-icon="mdi-github"
+            href="https://github.com/pcorbel/kai-master/issues/new"
+            prepend-icon="mdi-bug"
             target="_blank"
             variant="text"
           >
-            View Source
+            Report a bug
           </v-btn>
         </v-list-item>
       </v-list>

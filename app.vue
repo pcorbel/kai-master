@@ -7,6 +7,7 @@
       <nuxt-page />
     </v-main>
     <the-bottom-nav v-if="app.navigation.showBottomNav" />
+    <loading-overlay />
   </v-app>
 </template>
 
