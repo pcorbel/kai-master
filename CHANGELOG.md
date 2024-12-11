@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/pcorbel/kai-master/compare/v1.2.0...v1.3.0) (2024-12-11)
+
+
+### Features
+
+* :wrench: add dependabot ([667344c](https://github.com/pcorbel/kai-master/commit/667344cfdeaf242affc5c53d8563f199bd654dd4))
+* :wrench: add github issue templates ([9473d45](https://github.com/pcorbel/kai-master/commit/9473d45cbc41521fe0dd813212fb5a2f265d97b1))
+
 # [1.2.0](https://github.com/pcorbel/kai-master/compare/v1.1.2...v1.2.0) (2024-12-09)
 
 
