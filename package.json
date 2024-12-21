@@ -15,7 +15,7 @@
     "@vite-pwa/nuxt": "0.10.6",
     "dayjs-nuxt": "2.1.11",
     "firebase-admin": "13.0.2",
-    "firebase-functions": "6.1.2",
+    "firebase-functions": "6.2.0",
     "jszip": "3.10.1",
     "localforage": "1.10.0",
     "nuxt": "3.14.1592",
