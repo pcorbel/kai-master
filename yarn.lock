@@ -4978,10 +4978,10 @@ firebase-admin@13.0.2:
     "@google-cloud/firestore" "^7.11.0"
     "@google-cloud/storage" "^7.14.0"
 
-firebase-functions@6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/firebase-functions/-/firebase-functions-6.2.0.tgz#fb25db0e886e8e69cdd015254120f62a018694eb"
-  integrity sha512-vfyyVHS8elxplzEQ9To+NaINRPFUsDasQrasTa2eFJBYSPzdhkw6rwLmvwyYw622+ze+g4sDIb14VZym+afqXQ==
+firebase-functions@6.3.0:
+  version "6.3.0"
+  resolved "https://registry.yarnpkg.com/firebase-functions/-/firebase-functions-6.3.0.tgz#9426394adb8803b8c0302c469c904c815fc1746d"
+  integrity sha512-88dRx3dPYvlxIN64H1lJCFV7wGt0cFL0lmXKzVm+rfnkILC0Qt3rMXp3/J/ojf2StclBwJBu2QZ4MRbNYh7B7g==
   dependencies:
     "@types/cors" "^2.8.5"
     "@types/express" "^4.17.21"
