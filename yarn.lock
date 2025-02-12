@@ -1591,7 +1591,7 @@
     which "^3.0.1"
     ws "^8.18.0"
 
-"@nuxt/kit@3.15.4", "@nuxt/kit@^3.12.4", "@nuxt/kit@^3.13.2", "@nuxt/kit@^3.14.1592", "@nuxt/kit@^3.15.0", "@nuxt/kit@^3.15.1", "@nuxt/kit@^3.7.4", "@nuxt/kit@^3.8.0", "@nuxt/kit@^3.9.0":
+"@nuxt/kit@3.15.4", "@nuxt/kit@^3.12.4", "@nuxt/kit@^3.13.2", "@nuxt/kit@^3.14.1592", "@nuxt/kit@^3.15.0", "@nuxt/kit@^3.15.1", "@nuxt/kit@^3.15.4", "@nuxt/kit@^3.7.4", "@nuxt/kit@^3.8.0", "@nuxt/kit@^3.9.0":
   version "3.15.4"
   resolved "https://registry.yarnpkg.com/@nuxt/kit/-/kit-3.15.4.tgz#122f511e518573320a035b5e24adf0118d51485d"
   integrity sha512-dr7I7eZOoRLl4uxdxeL2dQsH0OrbEiVPIyBHnBpA4co24CBnoJoF+JINuP9l3PAM3IhUzc5JIVq3/YY3lEc3Hw==
@@ -1801,12 +1801,12 @@
     "@parcel/watcher-win32-ia32" "2.5.0"
     "@parcel/watcher-win32-x64" "2.5.0"
 
-"@pinia/nuxt@0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@pinia/nuxt/-/nuxt-0.9.0.tgz#310deb0fb17a5ca0dc603515695aa40be0a9f6e2"
-  integrity sha512-2yeRo7LeyCF68AbNeL3xu2h6uw0617RkcsYxmA8DJM0R0PMdz5wQHnc44KeENQxR/Mrq8T910XVT6buosqsjBQ==
+"@pinia/nuxt@0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@pinia/nuxt/-/nuxt-0.10.0.tgz#40d37724fa0f4cd3d5110017ebc3fafb770b912b"
+  integrity sha512-crYQgsqhEnf0HbOuaLYyLR9hyWK2lYUjcCYhFV4vgo3YThrLdnRKfBLa31au1uqcmgDqoX4mEm2OS3DO8GxR7w==
   dependencies:
-    "@nuxt/kit" "^3.9.0"
+    "@nuxt/kit" "^3.15.4"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -2611,10 +2611,17 @@
     "@vue/compiler-dom" "3.5.13"
     "@vue/shared" "3.5.13"
 
-"@vue/devtools-api@^6.6.3", "@vue/devtools-api@^6.6.4":
+"@vue/devtools-api@^6.6.4":
   version "6.6.4"
   resolved "https://registry.yarnpkg.com/@vue/devtools-api/-/devtools-api-6.6.4.tgz#cbe97fe0162b365edc1dba80e173f90492535343"
   integrity sha512-sGhTPMuXqZ1rVOk32RylztWkfXTRhuS7vgAKv0zjqk8gbsHkJ7xfFf+jbySxt7tWObEJwyKaHMikV/WGDiQm8g==
+
+"@vue/devtools-api@^7.7.1":
+  version "7.7.1"
+  resolved "https://registry.yarnpkg.com/@vue/devtools-api/-/devtools-api-7.7.1.tgz#6a44bf03ce27ba0230461171812d9ae98aeb2458"
+  integrity sha512-Cexc8GimowoDkJ6eNelOPdYIzsu2mgNyp0scOQ3tiaYSb9iok6LOESSsJvHaI+ib3joRfqRJNLkHFjhNuWA5dg==
+  dependencies:
+    "@vue/devtools-kit" "^7.7.1"
 
 "@vue/devtools-core@7.6.8":
   version "7.6.8"
@@ -2641,10 +2648,30 @@
     speakingurl "^14.0.1"
     superjson "^2.2.1"
 
+"@vue/devtools-kit@^7.7.1":
+  version "7.7.1"
+  resolved "https://registry.yarnpkg.com/@vue/devtools-kit/-/devtools-kit-7.7.1.tgz#9b4cdef7111ffd8673c14e9a16a433c65ebb8a8e"
+  integrity sha512-yhZ4NPnK/tmxGtLNQxmll90jIIXdb2jAhPF76anvn5M/UkZCiLJy28bYgPIACKZ7FCosyKoaope89/RsFJll1w==
+  dependencies:
+    "@vue/devtools-shared" "^7.7.1"
+    birpc "^0.2.19"
+    hookable "^5.5.3"
+    mitt "^3.0.1"
+    perfect-debounce "^1.0.0"
+    speakingurl "^14.0.1"
+    superjson "^2.2.1"
+
 "@vue/devtools-shared@^7.6.8":
   version "7.6.8"
   resolved "https://registry.yarnpkg.com/@vue/devtools-shared/-/devtools-shared-7.6.8.tgz#ddff5e3678353a286c733df5b26d058479d521f1"
   integrity sha512-9MBPO5Z3X1nYGFqTJyohl6Gmf/J7UNN1oicHdyzBVZP4jnhZ4c20MgtaHDIzWmHDHCMYVS5bwKxT3jxh7gOOKA==
+  dependencies:
+    rfdc "^1.4.1"
+
+"@vue/devtools-shared@^7.7.1":
+  version "7.7.1"
+  resolved "https://registry.yarnpkg.com/@vue/devtools-shared/-/devtools-shared-7.7.1.tgz#3a92d7cc268c15fa639797c45b0aff79eae9b8d7"
+  integrity sha512-BtgF7kHq4BHG23Lezc/3W2UhK2ga7a8ohAIAGJMBr4BkxUFzhqntQtCiuL1ijo2ztWnmusymkirgqUrXoQKumA==
   dependencies:
     rfdc "^1.4.1"
 
@@ -7823,13 +7850,12 @@ pinia-plugin-persistedstate@4.2.0:
     defu "^6.1.4"
     destr "^2.0.3"
 
-pinia@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/pinia/-/pinia-2.3.1.tgz#54c476675b72f5abcfafa24a7582531ea8c23d94"
-  integrity sha512-khUlZSwt9xXCaTbbxFYBKDc/bWAGWJjOgvxETwkTN7KRm66EeT1ZdZj6i2ceh9sP2Pzqsbc704r2yngBrxBVug==
+pinia@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/pinia/-/pinia-3.0.0.tgz#4243bd96bb1dab6a9ae6a0160336b308f114b1c8"
+  integrity sha512-Go23UsqaeABb4OYNmpDkE9VwDnqmbbjGzWpQhi3xfNkSPO6ZP+Ttt0EMo2J4DHXW+T0l3EqRneeXdyV/oJg/Mg==
   dependencies:
-    "@vue/devtools-api" "^6.6.3"
-    vue-demi "^0.14.10"
+    "@vue/devtools-api" "^7.7.1"
 
 pkg-types@^1.0.3, pkg-types@^1.2.0, pkg-types@^1.2.1, pkg-types@^1.3.0, pkg-types@^1.3.1:
   version "1.3.1"
@@ -10117,11 +10143,6 @@ vue-bundle-renderer@^2.1.1:
   integrity sha512-+qALLI5cQncuetYOXp4yScwYvqh8c6SMXee3B+M7oTZxOgtESP0l4j/fXdEJoZ+EdMxkGWIj+aSEyjXkOdmd7g==
   dependencies:
     ufo "^1.5.4"
-
-vue-demi@^0.14.10:
-  version "0.14.10"
-  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.14.10.tgz#afc78de3d6f9e11bf78c55e8510ee12814522f04"
-  integrity sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==
 
 vue-devtools-stub@^0.1.0:
   version "0.1.0"
