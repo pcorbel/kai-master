@@ -6781,9 +6781,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firebase-tools@npm:13.31.2":
-  version: 13.31.2
-  resolution: "firebase-tools@npm:13.31.2"
+"firebase-tools@npm:13.34.0":
+  version: 13.34.0
+  resolution: "firebase-tools@npm:13.34.0"
   dependencies:
     "@electric-sql/pglite": "npm:^0.2.16"
     "@google-cloud/cloud-sql-connector": "npm:^1.3.3"
@@ -6855,7 +6855,7 @@ __metadata:
     yaml: "npm:^2.4.1"
   bin:
     firebase: lib/bin/firebase.js
-  checksum: 10c0/f5aedfc3ac25f24276318fbb6a33f3fa19d34960f26f43fd0907b642a1cf89a48a0ff56d5e4b775135af327e99c06e3d993ca5561ac7bf66f42bce9bfea824b0
+  checksum: 10c0/001f591de7138add190ad7d3ce0c6c6fb68c9d1e5105da24a416213f0df3cf8b22dc58c4b26dfd61dda6b4664f7370f1da4894067256eea74b759de9b2a03fbc
   languageName: node
   linkType: hard
 
@@ -8778,7 +8778,7 @@ __metadata:
     dayjs-nuxt: "npm:2.1.11"
     firebase-admin: "npm:13.1.0"
     firebase-functions: "npm:6.3.2"
-    firebase-tools: "npm:13.31.2"
+    firebase-tools: "npm:13.34.0"
     jszip: "npm:3.10.1"
     localforage: "npm:1.10.0"
     nuxt: "npm:3.15.4"
