@@ -9393,7 +9393,7 @@ __metadata:
     pinia-plugin-persistedstate: "npm:4.2.0"
     vue: "npm:3.5.13"
     vue-router: "npm:4.5.0"
-    vuetify-nuxt-module: "npm:0.18.3"
+    vuetify-nuxt-module: "npm:0.18.4"
   languageName: unknown
   linkType: soft
 
@@ -14715,7 +14715,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-vuetify@npm:^2.0.4":
+"vite-plugin-vuetify@npm:^2.1.0":
   version: 2.1.0
   resolution: "vite-plugin-vuetify@npm:2.1.0"
   dependencies:
@@ -14886,9 +14886,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vuetify-nuxt-module@npm:0.18.3":
-  version: 0.18.3
-  resolution: "vuetify-nuxt-module@npm:0.18.3"
+"vuetify-nuxt-module@npm:0.18.4":
+  version: 0.18.4
+  resolution: "vuetify-nuxt-module@npm:0.18.4"
   dependencies:
     "@nuxt/kit": "npm:^3.12.4"
     defu: "npm:^6.1.4"
@@ -14899,9 +14899,9 @@ __metadata:
     ufo: "npm:^1.5.4"
     unconfig: "npm:^0.5.5"
     upath: "npm:^2.0.1"
-    vite-plugin-vuetify: "npm:^2.0.4"
+    vite-plugin-vuetify: "npm:^2.1.0"
     vuetify: "npm:^3.7.0"
-  checksum: 10c0/95a4dac67e04452ba9645309ced65f46cae9821677febb8e790ca74e0517957b72934be667da2b3c6d8ecb07e8905b987fddb88f5d7a14f80dcec585a013db08
+  checksum: 10c0/7ee271885f84aefe89becbea0c323e0dde073cc9709db0965a6b19b0632d0b31facd69bfca867f3bf1ca9753f8aa59f310327d214df28f98901c743cd0c5887d
   languageName: node
   linkType: hard
 
