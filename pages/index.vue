@@ -36,7 +36,7 @@
           </template>
 
           <v-carousel-item v-for="book in app.books">
-            <v-img :src="getCover(book)" />
+            <v-img :src="`/covers/${book.code}.jpeg`" />
           </v-carousel-item>
         </v-carousel>
       </v-col>
@@ -142,10 +142,6 @@ async function newGame() {
 
 function loadGame() {
   router.push(app.book.history[app.book.history.length - 1].path);
-}
-
-function getCover(book: Book) {
-  return `https://git.projectaon.org/?p=project-aon.git;a=blob_plain;hb=HEAD;f=en/jpeg/lw/${book.code}/skins/ebook/cover.jpg`;
 }
 </script>
 
