@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/pcorbel/kai-master/compare/v1.3.0...v1.3.1) (2025-04-05)
+
+
+### Bug Fixes
+
+* :bug: handle covers ([b4f9e8e](https://github.com/pcorbel/kai-master/commit/b4f9e8e49dd32050e8b36dc453922bbe63675ff5))
+
 # [1.3.0](https://github.com/pcorbel/kai-master/compare/v1.2.0...v1.3.0) (2024-12-11)
 
 
