@@ -4712,10 +4712,10 @@ firebase-functions@6.3.2:
     express "^4.21.0"
     protobufjs "^7.2.2"
 
-firebase-tools@14.2.0:
-  version "14.2.0"
-  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-14.2.0.tgz#8d1a47744f6451739b468a1285972bbceffcd105"
-  integrity sha512-dMYtB+1Tc4rAcmuZ9krfhrywYQAEWQk7CV6BTTllObhTTIhuFB256eLuiGmOP3RrmopZ6MDRGFIQ7I3drNF3Yw==
+firebase-tools@14.2.1:
+  version "14.2.1"
+  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-14.2.1.tgz#290bb6f50e0186fc008ef53cf857c131819a31a9"
+  integrity sha512-oi7AdtZ/CHOwF5EgAPLoMNKBwBQGRhHRcflV3JyP4w5wpwtoHaTDMILYGh9hB7Vq6j+3TUcapCrwtBu4tkGvSw==
   dependencies:
     "@electric-sql/pglite" "^0.2.16"
     "@google-cloud/cloud-sql-connector" "^1.3.3"
