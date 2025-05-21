@@ -18,7 +18,7 @@
     "firebase-functions": "6.3.2",
     "jszip": "3.10.1",
     "localforage": "1.10.0",
-    "nuxt": "3.17.2",
+    "nuxt": "3.17.4",
     "nuxt-lodash": "2.5.3",
     "pinia": "3.0.2",
     "pinia-plugin-persistedstate": "4.2.0",
