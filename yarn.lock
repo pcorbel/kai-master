@@ -5608,10 +5608,10 @@ firebase-functions@6.3.2:
     express "^4.21.0"
     protobufjs "^7.2.2"
 
-firebase-tools@14.3.0:
-  version "14.3.0"
-  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-14.3.0.tgz#70629ac1b450a355411132caf3822fea31c1a8b2"
-  integrity sha512-rhR4T+GltU1C6yOKHAZwe+dfRQs2r/MUuhRWo3HfYyfZMHl3IovgzwM9iPuI5NRYLMDwgLxDhIUcP/nhmfIssw==
+firebase-tools@14.5.0:
+  version "14.5.0"
+  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-14.5.0.tgz#45a11ab925e5c00f9a476072fb3fc081d5f21e75"
+  integrity sha512-ZjRU5mXW3N4DZ1AVwPyGXvF0TNSaw1fNXCMsVaYjQqvP5u1rn5HOS/7uv5J7cIPeFYqxE2n3u+tPeL1MuU3ZJQ==
   dependencies:
     "@electric-sql/pglite" "^0.2.16"
     "@google-cloud/cloud-sql-connector" "^1.3.3"
@@ -5645,6 +5645,7 @@ firebase-tools@14.3.0:
     gaxios "^6.7.0"
     glob "^10.4.1"
     google-auth-library "^9.11.0"
+    ignore "^7.0.4"
     js-yaml "^3.14.1"
     jsonwebtoken "^9.0.0"
     leven "^3.1.0"
