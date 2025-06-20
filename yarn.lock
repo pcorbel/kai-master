@@ -872,10 +872,15 @@
     gonzales-pe "^4.3.0"
     node-source-walk "^6.0.1"
 
-"@electric-sql/pglite@^0.2.16":
-  version "0.2.17"
-  resolved "https://registry.yarnpkg.com/@electric-sql/pglite/-/pglite-0.2.17.tgz#23d53a9b7ddd1590d59d7c701aba23b037f08108"
-  integrity sha512-qEpKRT2oUaWDH6tjRxLHjdzMqRUGYDnGZlKrnL4dJ77JVMcP2Hpo3NYnOSPKdZdeec57B6QPprCUFg0picx5Pw==
+"@electric-sql/pglite-tools@^0.2.8":
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/@electric-sql/pglite-tools/-/pglite-tools-0.2.8.tgz#9f8ec8462eca5a47f0a1be7153da27d39ad1c613"
+  integrity sha512-MBWelYjUZThOBrktPU4beuuX4hrUdIPRgfLbTgltLMT6Chh2R7ATxHsT9Nr7L9fXUSYlZCyoIf+n8pis3uoiiw==
+
+"@electric-sql/pglite@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@electric-sql/pglite/-/pglite-0.3.3.tgz#ce98737d57e2e640b582559f5e8d0c55463981a6"
+  integrity sha512-JrvHOx9q0yvKEby0bK8qzGTVw6K+yEg8enxDWb2IwNKr5XZxRrBb+GNIqoAIP7yXyhRg5jcENWmdHmtnAT87vA==
 
 "@emnapi/core@^1.4.0":
   version "1.4.3"
@@ -5608,12 +5613,13 @@ firebase-functions@6.3.2:
     express "^4.21.0"
     protobufjs "^7.2.2"
 
-firebase-tools@14.3.0:
-  version "14.3.0"
-  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-14.3.0.tgz#70629ac1b450a355411132caf3822fea31c1a8b2"
-  integrity sha512-rhR4T+GltU1C6yOKHAZwe+dfRQs2r/MUuhRWo3HfYyfZMHl3IovgzwM9iPuI5NRYLMDwgLxDhIUcP/nhmfIssw==
+firebase-tools@14.8.0:
+  version "14.8.0"
+  resolved "https://registry.yarnpkg.com/firebase-tools/-/firebase-tools-14.8.0.tgz#c99435ee8510b6588980bdbe8222a28344e33282"
+  integrity sha512-fz1m5LXs5e4WjS9bqe8yFUxz+grUtfnCEXCtRYRdgoofeY4av0DxW1PSxwLq5soPEBXj5ZR9CeSE6SrBui0WzQ==
   dependencies:
-    "@electric-sql/pglite" "^0.2.16"
+    "@electric-sql/pglite" "^0.3.3"
+    "@electric-sql/pglite-tools" "^0.2.8"
     "@google-cloud/cloud-sql-connector" "^1.3.3"
     "@google-cloud/pubsub" "^4.5.0"
     "@inquirer/prompts" "^7.4.0"
@@ -5645,6 +5651,7 @@ firebase-tools@14.3.0:
     gaxios "^6.7.0"
     glob "^10.4.1"
     google-auth-library "^9.11.0"
+    ignore "^7.0.4"
     js-yaml "^3.14.1"
     jsonwebtoken "^9.0.0"
     leven "^3.1.0"
@@ -5661,6 +5668,8 @@ firebase-tools@14.3.0:
     ora "^5.4.1"
     p-limit "^3.0.1"
     pg "^8.11.3"
+    pg-gateway "^0.3.0-beta.4"
+    pglite-2 "npm:@electric-sql/pglite@0.2.17"
     portfinder "^1.0.32"
     progress "^2.0.3"
     proxy-agent "^6.3.0"
@@ -8745,6 +8754,11 @@ pg-connection-string@^2.8.5:
   resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.8.5.tgz#82cefd0269cb64a09603342d9b69e8392e6eb6cd"
   integrity sha512-Ni8FuZ8yAF+sWZzojvtLE2b03cqjO5jNULcHFfM9ZZ0/JXrgom5pBREbtnAw7oxsxJqHw9Nz/XWORUEL3/IFow==
 
+pg-gateway@^0.3.0-beta.4:
+  version "0.3.0-beta.4"
+  resolved "https://registry.yarnpkg.com/pg-gateway/-/pg-gateway-0.3.0-beta.4.tgz#912f50185d3a334d9ab5d0598e03322d2fdf6486"
+  integrity sha512-CTjsM7Z+0Nx2/dyZ6r8zRsc3f9FScoD5UAOlfUx1Fdv/JOIWvRbF7gou6l6vP+uypXQVoYPgw8xZDXgMGvBa4Q==
+
 pg-int8@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/pg-int8/-/pg-int8-1.0.1.tgz#943bd463bf5b71b4170115f80f8efc9a0c0eb78c"
@@ -8783,6 +8797,11 @@ pg@^8.11.3:
     pgpass "1.x"
   optionalDependencies:
     pg-cloudflare "^1.2.5"
+
+"pglite-2@npm:@electric-sql/pglite@0.2.17":
+  version "0.2.17"
+  resolved "https://registry.yarnpkg.com/@electric-sql/pglite/-/pglite-0.2.17.tgz#23d53a9b7ddd1590d59d7c701aba23b037f08108"
+  integrity sha512-qEpKRT2oUaWDH6tjRxLHjdzMqRUGYDnGZlKrnL4dJ77JVMcP2Hpo3NYnOSPKdZdeec57B6QPprCUFg0picx5Pw==
 
 pgpass@1.x:
   version "1.0.5"
