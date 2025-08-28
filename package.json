@@ -28,6 +28,6 @@
   },
   "devDependencies": {
     "@types/jszip": "3.4.1",
-    "firebase-tools": "14.9.0"
+    "firebase-tools": "14.15.0"
   }
 }
