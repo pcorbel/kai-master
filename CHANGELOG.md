@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/pcorbel/kai-master/compare/v1.3.1...v1.4.0) (2025-10-17)
+
+
+### Features
+
+* :arrow_up: bump deps ([f3abd97](https://github.com/pcorbel/kai-master/commit/f3abd97fc9d7083ff9aa3bad6580d4e961b70629))
+
 ## [1.3.1](https://github.com/pcorbel/kai-master/compare/v1.3.0...v1.3.1) (2025-04-05)
 
 
