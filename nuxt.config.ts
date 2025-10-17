@@ -3,11 +3,11 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   ssr: false,
   modules: [
+    "@chettapong/nuxt-lodash",
     "@nuxtjs/color-mode",
     "@pinia/nuxt",
     "@vite-pwa/nuxt",
     "dayjs-nuxt",
-    "nuxt-lodash",
     "pinia-plugin-persistedstate/nuxt",
     "vuetify-nuxt-module",
   ],

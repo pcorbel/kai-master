@@ -1,7 +1,7 @@
 <template>
   <v-container class="h-100 text-justify">
     <dynamic-section :section="app.book.data.kaiLevels" />
-    <continue-button :to="getNext()" />
+    <continue-button :to="getNext()!" />
   </v-container>
 </template>
 

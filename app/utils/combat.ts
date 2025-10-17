@@ -257,7 +257,7 @@ export function getResult(
   randomNumber: number,
   combatRatio: number
 ): CombatResult {
-  return combatResults[randomNumber][combatRatio];
+  return combatResults[randomNumber]![combatRatio]!;
 }
 
 // Function to compute new endurance after combat

@@ -15,7 +15,6 @@
   </v-overlay>
 </template>
 
-
 <script setup lang="ts">
 // Define constants
 const app = useAppStore();

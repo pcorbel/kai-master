@@ -48,6 +48,9 @@ declare global {
       kaiDiscipline7: string;
       kaiDiscipline8: string;
       kaiDiscipline9: string;
+      kaiDiscipline10: string;
+      kaiDiscipline11: string;
+      kaiDiscipline12: string;
     };
     weapons: {
       weapon1: string;

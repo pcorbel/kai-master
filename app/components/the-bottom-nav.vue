@@ -13,7 +13,7 @@
       <v-icon> mdi-history </v-icon>
     </v-btn>
     <v-btn
-      @click="router.push(app.book.history[app.book.history.length - 1].path)"
+      @click="router.push(app.book.history[app.book.history.length - 1]!.path)"
     >
       <v-icon> mdi-book </v-icon>
     </v-btn>

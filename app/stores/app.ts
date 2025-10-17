@@ -640,12 +640,12 @@ export const useAppStore = defineStore("app", {
       const newStep: Step = {
         id: steps.length,
         loneWolfEndurance: computeNewEndurance(
-          lastStep.loneWolfEndurance,
+          lastStep!.loneWolfEndurance,
           result.lonewolfLoss
         ),
         enemyEndurance: this.book.combat.isEvading
-          ? lastStep.enemyEndurance
-          : computeNewEndurance(lastStep.enemyEndurance, result.enemyLoss),
+          ? lastStep!.enemyEndurance
+          : computeNewEndurance(lastStep!.enemyEndurance, result.enemyLoss),
         randomNumber,
       };
 

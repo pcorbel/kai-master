@@ -21,7 +21,7 @@
           v-model="currentBookIndex"
           class="elevation-0"
           hide-delimiters
-          @update:model-value="app.loadBook(app.books[currentBookIndex].code)"
+          @update:model-value="app.loadBook(app.books[currentBookIndex]!.code)"
         >
           <template v-slot:prev="{ props }">
             <v-btn icon @click="props.onClick">
@@ -141,7 +141,7 @@ async function newGame() {
 }
 
 function loadGame() {
-  router.push(app.book.history[app.book.history.length - 1].path);
+  router.push(app.book.history[app.book.history.length - 1]!.path);
 }
 </script>
 

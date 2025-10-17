@@ -452,7 +452,7 @@
 
     <v-row>
       <v-col cols="12">
-        <dynamic-paragraph :content="app.book.data.kaiMap.paragraphs[0]" />
+        <dynamic-paragraph :content="app.book.data.kaiMap.paragraphs[0]!" />
       </v-col>
     </v-row>
   </v-container>

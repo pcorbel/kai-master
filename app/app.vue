@@ -14,12 +14,4 @@
 <script setup lang="ts">
 // Define constants
 const app = useAppStore();
-const colorMode = useColorMode();
-const theme = useTheme();
-
-// Setup theme
-theme.global.name.value = colorMode.value;
-watch(colorMode, (system) => {
-  theme.global.name.value = system.value;
-});
 </script>

@@ -60,7 +60,7 @@ export async function fetchBookdata(code: string) {
       const sectionNumber = matchResult[1];
       const result = await extractNumberedSection(
         content,
-        sectionNumber,
+        sectionNumber!,
         contents
       );
       data.numberedSections.push(result);
@@ -191,7 +191,7 @@ export async function extractSection(
           results.push({
             id: localParagraphId++,
             type: "text",
-            text: `${number} = ${itemText.trim()}`,
+            text: `${number} = ${itemText!.trim()}`,
           });
         } else {
           results.push({
@@ -265,7 +265,7 @@ export async function extractSection(
 
       if (matchingFiles.length > 0) {
         const fullImgPath = matchingFiles[0];
-        const imgFile = zipContents.file(fullImgPath);
+        const imgFile = zipContents.file(fullImgPath!);
         if (imgFile) {
           try {
             const imgData = await imgFile.async("base64");
@@ -512,7 +512,7 @@ export async function extractKaiMap(
   }
 
   const fullImgPath = matchingFiles[0];
-  const imgFile = zipContents.file(fullImgPath);
+  const imgFile = zipContents.file(fullImgPath!);
 
   if (!imgFile) {
     throw new Error(`Image file not found in zip: ${fullImgPath}`);

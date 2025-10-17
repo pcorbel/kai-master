@@ -48,20 +48,20 @@ const parsedContent = computed<ContentPart[]>(() => {
     }
 
     const componentName = match[1];
-    const propsString = match[2].trim();
+    const propsString = match[2]!.trim();
     const componentProps: Record<string, string> = {};
 
     if (propsString) {
       const propsRegex = /(\w+)="([^"]*)"/g;
       let propMatch: RegExpExecArray | null;
       while ((propMatch = propsRegex.exec(propsString)) !== null) {
-        componentProps[propMatch[1]] = propMatch[2];
+        componentProps[propMatch[1]!] = propMatch[2] ?? "";
       }
     }
 
     parts.push({
       isComponent: true,
-      componentName,
+      componentName: componentName!,
       props: componentProps,
     });
 
