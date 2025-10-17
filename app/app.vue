@@ -14,4 +14,7 @@
 <script setup lang="ts">
 // Define constants
 const app = useAppStore();
+const colorMode = useColorMode();
+const theme = useTheme();
+theme.change(colorMode.value);
 </script>
