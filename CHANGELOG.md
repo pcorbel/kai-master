@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/pcorbel/kai-master/compare/v1.3.1...v1.4.0) (2026-07-03)
+
+
+### Bug Fixes
+
+* :bug: fix theme ([c435473](https://github.com/pcorbel/kai-master/commit/c435473f6355067e3c30d9af7e274f409b345dc2))
+
+
+### Features
+
+* :arrow_up: bump deps ([f3abd97](https://github.com/pcorbel/kai-master/commit/f3abd97fc9d7083ff9aa3bad6580d4e961b70629))
+
 # [1.4.0](https://github.com/pcorbel/kai-master/compare/v1.3.1...v1.4.0) (2025-10-17)
 
 
