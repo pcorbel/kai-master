@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@types/jszip": "3.4.1",
-    "firebase-tools": "15.22.4"
+    "firebase-tools": "15.23.0"
   },
   "volta": {
     "node": "26.3.1"
