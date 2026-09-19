@@ -1,16 +1,39 @@
 <template>
   <v-container class="h-100 text-justify">
     <!-- Lone Wolf Attributes -->
-    <v-row align="center" justify="center">
-      <v-col cols="12" justify="center">
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        cols="12"
+        justify="center"
+      >
         <span class="font-weight-bold text-h5"> Lone Wolf </span>
       </v-col>
     </v-row>
 
-    <v-row align="center" justify="center">
-      <v-col align="left" cols="8" justify="center"> COMBAT SKILL </v-col>
-      <v-col align="right" cols="4" justify="center">
-        <v-row align="center" justify="space-between" no-gutters>
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        align="left"
+        cols="8"
+        justify="center"
+      >
+        COMBAT SKILL
+      </v-col>
+      <v-col
+        align="right"
+        cols="4"
+        justify="center"
+      >
+        <v-row
+          align="center"
+          justify="space-between"
+          no-gutters
+        >
           <v-col cols="auto">
             <v-btn
               density="compact"
@@ -35,10 +58,27 @@
       </v-col>
     </v-row>
 
-    <v-row align="center" justify="center">
-      <v-col align="left" cols="8" justify="center"> ENDURANCE </v-col>
-      <v-col align="right" cols="4" justify="center">
-        <v-row align="center" justify="space-between" no-gutters>
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        align="left"
+        cols="8"
+        justify="center"
+      >
+        ENDURANCE
+      </v-col>
+      <v-col
+        align="right"
+        cols="4"
+        justify="center"
+      >
+        <v-row
+          align="center"
+          justify="space-between"
+          no-gutters
+        >
           <v-col cols="auto">
             <v-btn
               density="compact"
@@ -63,10 +103,27 @@
       </v-col>
     </v-row>
 
-    <v-row align="center" justify="center">
-      <v-col align="left" cols="8" justify="center"> Belt Pouch </v-col>
-      <v-col align="right" cols="4" justify="center">
-        <v-row align="center" justify="space-between" no-gutters>
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        align="left"
+        cols="8"
+        justify="center"
+      >
+        Belt Pouch
+      </v-col>
+      <v-col
+        align="right"
+        cols="4"
+        justify="center"
+      >
+        <v-row
+          align="center"
+          justify="space-between"
+          no-gutters
+        >
           <v-col cols="auto">
             <v-btn
               density="compact"
@@ -90,10 +147,27 @@
       </v-col>
     </v-row>
 
-    <v-row align="center" justify="center">
-      <v-col align="left" cols="8" justify="center"> Meals </v-col>
-      <v-col align="right" cols="4" justify="center">
-        <v-row align="center" justify="space-between" no-gutters>
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        align="left"
+        cols="8"
+        justify="center"
+      >
+        Meals
+      </v-col>
+      <v-col
+        align="right"
+        cols="4"
+        justify="center"
+      >
+        <v-row
+          align="center"
+          justify="space-between"
+          no-gutters
+        >
           <v-col cols="auto">
             <v-btn
               density="compact"
@@ -118,14 +192,26 @@
     </v-row>
 
     <!-- Item slots -->
-    <template v-for="group in slotGroups" :key="group.key">
-      <v-row align="center" justify="center">
-        <v-col cols="12" justify="center">
+    <template
+      v-for="group in slotGroups"
+      :key="group.key"
+    >
+      <v-row
+        align="center"
+        justify="center"
+      >
+        <v-col
+          cols="12"
+          justify="center"
+        >
           <span class="font-weight-bold text-h5"> {{ group.title }} </span>
         </v-col>
       </v-row>
 
-      <v-row align="center" justify="center">
+      <v-row
+        align="center"
+        justify="center"
+      >
         <v-col
           v-for="index in group.count"
           :key="index"
@@ -143,21 +229,42 @@
     </template>
 
     <!-- Notes -->
-    <v-row align="center" justify="center">
-      <v-col cols="12" justify="center">
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        cols="12"
+        justify="center"
+      >
         <span class="font-weight-bold text-h5"> Notes </span>
       </v-col>
     </v-row>
 
-    <v-row align="center" justify="center">
-      <v-col cols="12" justify="center">
-        <v-textarea v-model="app.book.actionChart.notes" clearable />
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        cols="12"
+        justify="center"
+      >
+        <v-textarea
+          v-model="app.book.actionChart.notes"
+          clearable
+        />
       </v-col>
     </v-row>
 
     <!-- Map -->
-    <v-row align="center" justify="center">
-      <v-col cols="12" justify="center">
+    <v-row
+      align="center"
+      justify="center"
+    >
+      <v-col
+        cols="12"
+        justify="center"
+      >
         <span class="font-weight-bold text-h5"> {{ app.content!.kaiMap.title }} </span>
       </v-col>
     </v-row>

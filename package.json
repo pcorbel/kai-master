@@ -2,16 +2,28 @@
   "name": "kai-master",
   "private": true,
   "type": "module",
+  "packageManager": "yarn@4.17.0",
+  "engines": {
+    "node": ">=26.3.1"
+  },
+  "volta": {
+    "node": "26.3.1",
+    "yarn": "4.17.0"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev --no-fork",
-    "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "nuxt typecheck",
+    "typecheck:e2e": "tsc -p tsconfig.e2e.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:books": "vitest run --config vitest.integration.config.ts",
-    "typecheck": "nuxt typecheck",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium",
     "books:download": "tsx scripts/books.ts download",
     "books:dump": "tsx scripts/books.ts dump"
   },
@@ -22,8 +34,6 @@
     "@vite-pwa/nuxt": "1.1.1",
     "@vue/devtools-api": "8.2.1",
     "dayjs-nuxt": "2.1.11",
-    "firebase-admin": "14.4.0",
-    "firebase-functions": "7.4.0",
     "jszip": "3.10.2",
     "localforage": "1.10.0",
     "nuxt": "4.5.2",
@@ -34,16 +44,15 @@
     "vuetify-nuxt-module": "0.19.5"
   },
   "devDependencies": {
-    "@types/jsdom": "^30",
+    "@nuxt/eslint": "1.17.0",
+    "@playwright/test": "1.63.0",
+    "@types/jsdom": "30.0.0",
     "@types/jszip": "3.4.1",
-    "firebase-tools": "15.30.2",
-    "jsdom": "^30",
-    "tsx": "^4",
-    "typescript": "^5.9",
-    "vitest": "^5",
-    "vue-tsc": "^3"
-  },
-  "volta": {
-    "node": "26.3.1"
+    "eslint": "10.10.0",
+    "jsdom": "30.1.0",
+    "tsx": "4.23.13",
+    "typescript": "5.9.3",
+    "vitest": "5.0.1",
+    "vue-tsc": "3.3.11"
   }
 }

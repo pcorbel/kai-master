@@ -27,12 +27,12 @@ export const useAppStore = defineStore("app", {
 
   getters: {
     meta: (state): BookMeta =>
-      state.books.find((book) => book.code === state.book.code) ?? state.books[0]!,
+      state.books.find(book => book.code === state.book.code) ?? state.books[0]!,
 
     hasContent: (state): boolean =>
-      state.content !== null &&
-      state.content.code === state.book.code &&
-      state.content.version === CONTENT_VERSION,
+      state.content !== null
+      && state.content.code === state.book.code
+      && state.content.version === CONTENT_VERSION,
 
     /** Path to resume at: the last page the player visited. */
     resumePath: (state): string | null =>
@@ -56,8 +56,8 @@ export const useAppStore = defineStore("app", {
         bookStorage.getItem<BookContent>(contentKey(code)),
       ]);
       this.book = migrateBookState(savedState, code);
-      this.content =
-        savedContent && savedContent.code === code && savedContent.version === CONTENT_VERSION
+      this.content
+        = savedContent && savedContent.code === code && savedContent.version === CONTENT_VERSION
           ? markRaw(savedContent)
           : null;
     },
@@ -81,7 +81,7 @@ export const useAppStore = defineStore("app", {
         retry: 2,
         retryDelay: 1000,
       });
-      const content = await parseBookZip(zip, code, (message) => console.warn(message));
+      const content = await parseBookZip(zip, code, message => console.warn(message));
       await bookStorage.setItem(contentKey(code), content);
       this.content = markRaw(content);
       this.book.contentVersion = content.version;
@@ -99,7 +99,7 @@ export const useAppStore = defineStore("app", {
     },
 
     getSection(number: number): Section | null {
-      return this.content?.numberedSections.find((section) => section.number === number) ?? null;
+      return this.content?.numberedSections.find(section => section.number === number) ?? null;
     },
 
     // --- Action Chart -------------------------------------------------------

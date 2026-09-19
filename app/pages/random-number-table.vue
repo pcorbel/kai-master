@@ -21,8 +21,15 @@
     </v-row>
   </v-container>
 
-  <v-container v-else class="h-100" @click="router.go(-1)">
-    <v-row class="h-100" align="center">
+  <v-container
+    v-else
+    class="h-100"
+    @click="router.go(-1)"
+  >
+    <v-row
+      class="h-100"
+      align="center"
+    >
       <v-col class="text-h1 text-center">
         {{ randomNumber }}
       </v-col>

@@ -1,5 +1,8 @@
 <template>
-  <rules-page section-key="kaiLevels" :next="next" />
+  <rules-page
+    section-key="kaiLevels"
+    :next="next"
+  />
 </template>
 
 <script setup lang="ts">

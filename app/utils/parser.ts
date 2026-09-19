@@ -35,7 +35,7 @@ const MIME_BY_EXTENSION: Record<string, string> = {
 
 export type ImageResolver = (
   src: string,
-  alt: string
+  alt: string,
 ) => Promise<{ src: string; alt: string } | null>;
 
 export interface ExtractOptions {
@@ -54,7 +54,7 @@ const squash = (text: string | null | undefined) =>
 /** Plain text of an element, footnote markers excluded. */
 function plainText(element: Element): string {
   const clone = element.cloneNode(true) as Element;
-  clone.querySelectorAll("sup").forEach((sup) => sup.remove());
+  clone.querySelectorAll("sup").forEach(sup => sup.remove());
   return squash(clone.textContent);
 }
 
@@ -66,14 +66,14 @@ export function paragraphText(paragraph: Paragraph): string {
     return `${name}: COMBAT SKILL ${combatSkill} ${label} ${endurance}`;
   }
   if (paragraph.type === "table" && paragraph.rows) {
-    return paragraph.rows.map((row) => row.cells.join(" | ")).join("\n");
+    return paragraph.rows.map(row => row.cells.join(" | ")).join("\n");
   }
   return runsText(paragraph.runs);
 }
 
 export function runsText(runs: InlineRun[]): string {
   return runs
-    .map((run) => (run.kind === "line-break" ? "\n" : run.text))
+    .map(run => (run.kind === "line-break" ? "\n" : run.text))
     .join("")
     .trim();
 }
@@ -89,7 +89,7 @@ export function runsText(runs: InlineRun[]): string {
 export async function parseBookZip(
   zipData: ArrayBuffer | Uint8Array | Blob,
   code: string,
-  warn: (message: string) => void = () => {}
+  warn: (message: string) => void = () => {},
 ): Promise<BookContent> {
   const zip = await JSZip.loadAsync(zipData);
 
@@ -136,7 +136,7 @@ export async function parseBookZip(
         title: `Section ${number}`,
         number,
         ...shared,
-      })
+      }),
     );
   }
   content.numberedSections!.sort((a, b) => a.number! - b.number!);
@@ -157,8 +157,8 @@ function createImageResolver(byName: Map<string, JSZip.JSZipObject>): ImageResol
       cache.set(
         base,
         entry && mime
-          ? entry.async("base64").then((data) => `data:${mime};base64,${data}`)
-          : Promise.resolve(null)
+          ? entry.async("base64").then(data => `data:${mime};base64,${data}`)
+          : Promise.resolve(null),
       );
     }
     const dataUrl = await cache.get(base)!;
@@ -251,7 +251,7 @@ export async function extractSection(html: string, options: ExtractOptions): Pro
   const addCombat = (element: Element) => {
     const text = plainText(element);
     const match = text.match(
-      /^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(?:\(([^)]*)\)\s*)?(\d+)\s*$/i
+      /^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(?:\(([^)]*)\)\s*)?(\d+)\s*$/i,
     );
     if (match) {
       const combat: CombatStats = {
@@ -261,7 +261,8 @@ export async function extractSection(html: string, options: ExtractOptions): Pro
       };
       if (match[3]) combat.enduranceLabel = squash(match[3]);
       add({ type: "combat", runs: [], combat });
-    } else {
+    }
+    else {
       options.warn?.(`${options.key}: unrecognised combat block: ${text}`);
       addRuns("text", element);
     }
@@ -270,9 +271,9 @@ export async function extractSection(html: string, options: ExtractOptions): Pro
   const addTable = (table: Element) => {
     const rows: TableRow[] = [];
     for (const tr of Array.from(table.querySelectorAll("tr"))) {
-      const cells = Array.from(tr.children).map((cell) => plainText(cell));
-      if (cells.every((cell) => !cell)) continue;
-      const header = Array.from(tr.children).every((cell) => cell.tagName === "TH");
+      const cells = Array.from(tr.children).map(cell => plainText(cell));
+      if (cells.every(cell => !cell)) continue;
+      const header = Array.from(tr.children).every(cell => cell.tagName === "TH");
       rows.push({ header, cells });
     }
     if (rows.length) add({ type: "table", runs: [], rows });
@@ -285,7 +286,7 @@ export async function extractSection(html: string, options: ExtractOptions): Pro
       if (li.tagName !== "LI") continue;
       index++;
       const clone = li.cloneNode(true) as Element;
-      clone.querySelectorAll("figure, ul, ol, table").forEach((nested) => nested.remove());
+      clone.querySelectorAll("figure, ul, ol, table").forEach(nested => nested.remove());
       const runs = inlineRuns(clone, context);
       if (runs.length) {
         const text = runsText(runs);
@@ -312,7 +313,8 @@ export async function extractSection(html: string, options: ExtractOptions): Pro
       if (!titleTaken) {
         titleTaken = true;
         if (!options.title) section.title = plainText(element);
-      } else {
+      }
+      else {
         const type: ParagraphType = tag === "H2" ? "header-1" : tag === "H3" ? "header-2" : "header-3";
         addRuns(type, element);
       }
@@ -388,7 +390,7 @@ const INLINE_TAGS = new Set(["A", "SPAN", "EM", "I", "CITE", "STRONG", "B", "SUP
 const isInlineTag = (tag: string) => INLINE_TAGS.has(tag);
 
 const structuredCloneRuns = (runs: InlineRun[]): InlineRun[] =>
-  runs.map((run) => ({ ...run }));
+  runs.map(run => ({ ...run }));
 
 // -----------------------------------------------------------------------------
 // Inline level
@@ -412,7 +414,7 @@ export function inlineRuns(element: Element, context: InlineContext): InlineRun[
     if (node.nodeType === Node.TEXT_NODE) return pushText(node.textContent ?? "", style);
     if (node.nodeType !== Node.ELEMENT_NODE) return;
     const el = node as Element;
-    const walkChildren = (s = style) => el.childNodes.forEach((child) => walk(child, s));
+    const walkChildren = (s = style) => el.childNodes.forEach(child => walk(child, s));
 
     switch (el.tagName) {
       case "BR":
@@ -462,7 +464,7 @@ export function inlineRuns(element: Element, context: InlineContext): InlineRun[
     }
   };
 
-  element.childNodes.forEach((child) => walk(child));
+  element.childNodes.forEach(child => walk(child));
   return normaliseRuns(runs);
 }
 
@@ -484,5 +486,5 @@ function normaliseRuns(runs: InlineRun[]): InlineRun[] {
   while (out.length && out[out.length - 1]!.kind === "line-break") out.pop();
   const last = out[out.length - 1];
   if (last?.kind === "text") last.text = last.text.replace(/\s+$/, "");
-  return out.filter((run) => run.kind !== "text" || run.text !== "");
+  return out.filter(run => run.kind !== "text" || run.text !== "");
 }

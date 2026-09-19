@@ -8,7 +8,7 @@ export const FAKE_CODE = "99test";
 
 const PNG_1x1 = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-  "base64"
+  "base64",
 );
 // A second, different payload so tests can tell sword.png from bsword.png apart.
 const PNG_OTHER = Buffer.concat([PNG_1x1, Buffer.from([0])]);

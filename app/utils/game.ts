@@ -59,7 +59,8 @@ function slotsFrom(value: unknown, count: number): string[] {
   const slots = emptySlots(count);
   if (Array.isArray(value)) {
     value.slice(0, count).forEach((v, i) => (slots[i] = typeof v === "string" ? v : ""));
-  } else if (value && typeof value === "object") {
+  }
+  else if (value && typeof value === "object") {
     Object.entries(value as Record<string, unknown>)
       .map(([k, v]) => [parseInt(k.replace(/\D+/g, ""), 10), v] as const)
       .filter(([n]) => n >= 1 && n <= count)

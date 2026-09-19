@@ -382,4 +382,4 @@ export const BOOKS: BookMeta[] = [
   },
 ];
 
-export const BOOK_CODES = new Set(BOOKS.map((book) => book.code));
+export const BOOK_CODES = new Set(BOOKS.map(book => book.code));

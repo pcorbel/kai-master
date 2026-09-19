@@ -1,3 +1,6 @@
 <template>
-  <rules-page section-key="improvedDisciplines" next="/kai-wisdom" />
+  <rules-page
+    section-key="improvedDisciplines"
+    next="/kai-wisdom"
+  />
 </template>

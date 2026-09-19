@@ -1,7 +1,13 @@
 <template>
   <v-container class="h-100 text-justify">
-    <dynamic-section v-if="section" :section="section" />
-    <continue-button v-if="section && props.next" :to="props.next" />
+    <dynamic-section
+      v-if="section"
+      :section="section"
+    />
+    <continue-button
+      v-if="section && props.next"
+      :to="props.next"
+    />
   </v-container>
 </template>
 
@@ -25,7 +31,8 @@ const section = computed(() => app.content?.[props.sectionKey] as Section | unde
 if (!section.value) {
   // The page does not exist for this series (e.g. Lore-circles in a Kai book).
   await navigateTo(props.next ?? "/", { replace: true });
-} else {
+}
+else {
   app.navigation.showAppbar = true;
   app.navigation.showBottomNav = true;
   app.navigation.title = section.value.title;

@@ -2,7 +2,12 @@
   <!-- Continue Button -->
   <v-row>
     <v-col>
-      <v-btn block color="primary" :to="props.to" variant="flat">
+      <v-btn
+        block
+        color="primary"
+        :to="props.to"
+        variant="flat"
+      >
         CONTINUE
       </v-btn>
     </v-col>

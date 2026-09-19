@@ -15,7 +15,7 @@ const CACHE = path.resolve(import.meta.dirname, "../.cache/books");
 const JSON_DIR = path.join(CACHE, "json");
 const command = process.argv[2];
 const only = process.argv[3];
-const books = BOOKS.filter((book) => !only || book.code === only);
+const books = BOOKS.filter(book => !only || book.code === only);
 
 async function download() {
   fs.mkdirSync(CACHE, { recursive: true });
@@ -47,23 +47,23 @@ async function dump() {
       continue;
     }
     const warnings: string[] = [];
-    const content = await parseBookZip(fs.readFileSync(file), book.code, (m) => warnings.push(m));
+    const content = await parseBookZip(fs.readFileSync(file), book.code, m => warnings.push(m));
     const json = JSON.stringify(content);
     fs.writeFileSync(path.join(JSON_DIR, `${book.code}.json`), json);
 
     // A text-only copy without the base64 images is handy for diffing.
     const textOnly = JSON.stringify(content, (key, value) =>
-      key === "image" && value && typeof value === "object" ? { ...value, src: "(omitted)" } : value
+      key === "image" && value && typeof value === "object" ? { ...value, src: "(omitted)" } : value,
     );
     fs.writeFileSync(path.join(JSON_DIR, `${book.code}.text.json`), textOnly);
 
-    const paragraphs = content.numberedSections.flatMap((s) => s.paragraphs);
-    const count = (type: ParagraphType) => paragraphs.filter((p) => p.type === type).length;
+    const paragraphs = content.numberedSections.flatMap(s => s.paragraphs);
+    const count = (type: ParagraphType) => paragraphs.filter(p => p.type === type).length;
     console.log(
-      `${book.code}: ${content.numberedSections.length} sections, ${count("choice")} choices, ` +
-        `${count("combat")} combats, ${count("image")} images, ${count("footnote")} footnotes, ` +
-        `${(json.length / 1048576).toFixed(1)} MB (${(textOnly.length / 1024).toFixed(0)} KB text)` +
-        (warnings.length ? `\n  warnings: ${warnings.join("; ")}` : "")
+      `${book.code}: ${content.numberedSections.length} sections, ${count("choice")} choices, `
+      + `${count("combat")} combats, ${count("image")} images, ${count("footnote")} footnotes, `
+      + `${(json.length / 1048576).toFixed(1)} MB (${(textOnly.length / 1024).toFixed(0)} KB text)`
+      + (warnings.length ? `\n  warnings: ${warnings.join("; ")}` : ""),
     );
     void paragraphText;
   }

@@ -1,8 +1,14 @@
 <template>
   <!-- Action Chart Link -->
-  <nuxt-link class="custom-link" to="/action-chart">
+  <nuxt-link
+    class="custom-link"
+    to="/action-chart"
+  >
     <span class="link-content">
-      <v-icon class="mr-1" size="1em"> mdi-account </v-icon>
+      <v-icon
+        class="mr-1"
+        size="1em"
+      > mdi-account </v-icon>
       {{ props.text ?? "Action Chart" }}
     </span>
   </nuxt-link>

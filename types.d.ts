@@ -13,29 +13,29 @@ declare global {
   // Book content (immutable, produced by the parser, cached per book)
   // ---------------------------------------------------------------------------
 
-  type InlineRun =
-    | { kind: "text"; text: string; style?: "em" | "strong" | "smallcaps" }
-    | { kind: "section-link"; section: number; text: string }
-    | { kind: "action-chart-link"; text: string }
-    | { kind: "random-number-link"; text: string }
-    | { kind: "footnote-ref"; footnote: string; text: string }
-    | { kind: "line-break" };
+  type InlineRun
+    = | { kind: "text"; text: string; style?: "em" | "strong" | "smallcaps" }
+      | { kind: "section-link"; section: number; text: string }
+      | { kind: "action-chart-link"; text: string }
+      | { kind: "random-number-link"; text: string }
+      | { kind: "footnote-ref"; footnote: string; text: string }
+      | { kind: "line-break" };
 
-  type ParagraphType =
-    | "text"
-    | "choice"
-    | "deadend"
-    | "signpost"
-    | "poetry"
-    | "puzzle"
-    | "list-item"
-    | "header-1"
-    | "header-2"
-    | "header-3"
-    | "image"
-    | "combat"
-    | "table"
-    | "footnote";
+  type ParagraphType
+    = | "text"
+      | "choice"
+      | "deadend"
+      | "signpost"
+      | "poetry"
+      | "puzzle"
+      | "list-item"
+      | "header-1"
+      | "header-2"
+      | "header-3"
+      | "image"
+      | "combat"
+      | "table"
+      | "footnote";
 
   interface CombatStats {
     name: string;

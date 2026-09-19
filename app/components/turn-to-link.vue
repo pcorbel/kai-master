@@ -1,8 +1,14 @@
 <template>
   <!-- Turn To Link -->
-  <nuxt-link class="custom-link" :to="`/section-${props.number}`">
+  <nuxt-link
+    class="custom-link"
+    :to="`/section-${props.number}`"
+  >
     <span class="link-content">
-      <v-icon class="mr-1" size="1em"> mdi-book-arrow-right </v-icon>
+      <v-icon
+        class="mr-1"
+        size="1em"
+      > mdi-book-arrow-right </v-icon>
       {{ props.text }}
     </span>
   </nuxt-link>

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
+import type * as Books from "#shared/utils/books";
 import { FAKE_CODE, buildFakeBookZip } from "./fixtures/fake-book";
 
 // In-memory replacement for IndexedDB.
@@ -21,11 +22,11 @@ vi.mock("~/utils/storage", () => ({
 
 // The store downloads through Nuxt's global $fetch.
 const fetchMock = vi.fn();
-(globalThis as any).$fetch = fetchMock;
+Object.assign(globalThis, { $fetch: fetchMock });
 
 // Pretend the fake book is part of the library so the store can select it.
 vi.mock("#shared/utils/books", async (importOriginal) => {
-  const original = await importOriginal<typeof import("#shared/utils/books")>();
+  const original = await importOriginal<typeof Books>();
   const fake = { ...original.BOOKS[0]!, id: 99, code: "99test", title: "Test Book" };
   return { BOOKS: [...original.BOOKS, fake], BOOK_CODES: new Set([...original.BOOK_CODES, "99test"]) };
 });
@@ -74,10 +75,10 @@ describe("app store", () => {
 
     app.addHistory("Section 1", "/section-1");
     app.adjustEndurance(5);
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     const saved = memory.get(`book-${FAKE_CODE}`) as BookState;
-    expect(saved.history.map((h) => h.path)).toEqual(["/section-1"]);
+    expect(saved.history.map(h => h.path)).toEqual(["/section-1"]);
     expect(saved.actionChart.endurance).toBe(5);
     expect(saved).not.toHaveProperty("content");
     expect(saved).not.toHaveProperty("data");
@@ -90,7 +91,7 @@ describe("app store", () => {
     await first.startNewGame();
     first.addHistory("Section 3", "/section-3");
     first.book.isStarted = true;
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     setActivePinia(createPinia());
     const second = useAppStore();
@@ -166,7 +167,7 @@ describe("app store", () => {
     app.addHistory("Section 1", "/section-1");
     app.addHistory("Section 1", "/section-1");
     app.addHistory("Section 2", "/section-2");
-    expect(app.book.history.map((h) => h.path)).toEqual(["/section-1", "/section-2"]);
+    expect(app.book.history.map(h => h.path)).toEqual(["/section-1", "/section-2"]);
   });
 
   it("bounds extreme combat ratios to the table", () => {

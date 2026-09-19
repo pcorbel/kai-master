@@ -18,14 +18,14 @@ export const bookStorage = {
     const plain = JSON.parse(JSON.stringify(value));
     lastWrite = lastWrite
       .then(() => storage.setItem(key, plain))
-      .catch((error) => console.error(`Storage error while saving ${key}:`, error));
+      .catch(error => console.error(`Storage error while saving ${key}:`, error));
     return lastWrite as Promise<void>;
   },
 
   removeItem(key: string): Promise<void> {
     lastWrite = lastWrite
       .then(() => storage.removeItem(key))
-      .catch((error) => console.error(`Storage error while removing ${key}:`, error));
+      .catch(error => console.error(`Storage error while removing ${key}:`, error));
     return lastWrite as Promise<void>;
   },
 

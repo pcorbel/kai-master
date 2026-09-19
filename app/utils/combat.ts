@@ -255,7 +255,7 @@ const combatResults: CombatResultsTable = {
 // Function to get the combat result based on random number and combat ratio
 export function getResult(
   randomNumber: number,
-  combatRatio: number
+  combatRatio: number,
 ): CombatResult {
   return combatResults[randomNumber]![combatRatio]!;
 }
@@ -263,7 +263,7 @@ export function getResult(
 // Function to compute new endurance after combat
 export function computeNewEndurance(
   current: number,
-  loss: number | "k"
+  loss: number | "k",
 ): number {
   if (loss === "k") return 0;
   return Math.max(0, current - loss);

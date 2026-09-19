@@ -1,9 +1,7 @@
 export default defineNuxtConfig({
-  compatibilityDate: "2024-04-03",
-  devtools: { enabled: false },
-  ssr: false,
   modules: [
     "@chettapong/nuxt-lodash",
+    "@nuxt/eslint",
     "@nuxtjs/color-mode",
     "@pinia/nuxt",
     "@vite-pwa/nuxt",
@@ -11,14 +9,38 @@ export default defineNuxtConfig({
     "pinia-plugin-persistedstate/nuxt",
     "vuetify-nuxt-module",
   ],
+  ssr: false,
+  devtools: { enabled: false },
+
+  /**
+   * Every value has a non-secret default and can be overridden at run time
+   * with a NUXT_* environment variable. The e2e suite points this at a stub.
+   */
+  runtimeConfig: {
+    booksBaseUrl: "https://www.projectaon.org",
+  },
+  compatibilityDate: "2024-04-03",
+  /**
+   * Runs as a plain Node server in a container (see Dockerfile). The only
+   * server code is the Project Aon proxy under server/api.
+   */
+  nitro: {
+    preset: "node-server",
+  },
+
+  eslint: {
+    config: {
+      // One formatter, and it is the linter. No Prettier.
+      stylistic: {
+        quotes: "double",
+        semi: true,
+        commaDangle: "always-multiline",
+      },
+    },
+  },
   lodash: {
     prefix: "_",
     upperAfterPrefix: false,
-  },
-  nitro: {
-    firebase: {
-      gen: 2,
-    },
   },
   piniaPluginPersistedstate: {
     storage: "localStorage",

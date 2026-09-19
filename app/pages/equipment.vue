@@ -1,3 +1,6 @@
 <template>
-  <rules-page section-key="equipment" next="/combat-rules" />
+  <rules-page
+    section-key="equipment"
+    next="/combat-rules"
+  />
 </template>

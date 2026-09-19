@@ -1,3 +1,6 @@
 <template>
-  <rules-page section-key="theGameRules" next="/kai-disciplines" />
+  <rules-page
+    section-key="theGameRules"
+    next="/kai-disciplines"
+  />
 </template>

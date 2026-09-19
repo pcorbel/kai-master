@@ -1,5 +1,8 @@
 <template>
-  <v-row v-for="paragraph in props.section.paragraphs" :key="paragraph.id">
+  <v-row
+    v-for="paragraph in props.section.paragraphs"
+    :key="paragraph.id"
+  >
     <v-col cols="12">
       <dynamic-paragraph :paragraph="paragraph" />
     </v-col>

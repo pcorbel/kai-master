@@ -1,6 +1,10 @@
 <template>
   <!-- The App Bar -->
-  <v-app-bar class="custom-border" color="background" flat>
+  <v-app-bar
+    class="custom-border"
+    color="background"
+    flat
+  >
     <v-app-bar-nav-icon @click="showDrawer = !showDrawer" />
     <v-toolbar-title class="font-weight-black text-truncate pr-3">
       {{ app.navigation.title }}
@@ -19,8 +23,11 @@
       <v-list-subheader> Kai-Master </v-list-subheader>
 
       <v-list-item @click="router.push('/')">
-        <template v-slot:prepend>
-          <v-icon color="primary" icon="mdi-home" />
+        <template #prepend>
+          <v-icon
+            color="primary"
+            icon="mdi-home"
+          />
         </template>
         <v-list-item-title> Library </v-list-item-title>
       </v-list-item>
@@ -30,10 +37,13 @@
       <v-list-subheader> {{ app.meta.title }} </v-list-subheader>
 
       <v-list-group>
-        <template v-slot:activator="{ props }">
+        <template #activator="{ props }">
           <v-list-item v-bind="props">
-            <template v-slot:prepend>
-              <v-icon color="primary" icon="mdi-book-settings" />
+            <template #prepend>
+              <v-icon
+                color="primary"
+                icon="mdi-book-settings"
+              />
             </template>
             <v-list-item-title> Rules </v-list-item-title>
           </v-list-item>
@@ -71,7 +81,10 @@
           {{ app.content!.kaiLevels!.title }}
         </v-list-item>
 
-        <v-list-item v-if="app.content!.loreCircles" @click="router.push('/lore-circles')">
+        <v-list-item
+          v-if="app.content!.loreCircles"
+          @click="router.push('/lore-circles')"
+        >
           {{ app.content!.loreCircles!.title }}
         </v-list-item>
 
@@ -88,10 +101,13 @@
       </v-list-group>
 
       <v-list-group>
-        <template v-slot:activator="{ props }">
+        <template #activator="{ props }">
           <v-list-item v-bind="props">
-            <template v-slot:prepend>
-              <v-icon color="primary" icon="mdi-book-arrow-right" />
+            <template #prepend>
+              <v-icon
+                color="primary"
+                icon="mdi-book-arrow-right"
+              />
             </template>
             <v-list-item-title> Sections </v-list-item-title>
           </v-list-item>
@@ -107,35 +123,47 @@
       </v-list-group>
 
       <v-list-item @click="router.push('/action-chart')">
-        <template v-slot:prepend>
-          <v-icon color="primary" icon="mdi-account" />
+        <template #prepend>
+          <v-icon
+            color="primary"
+            icon="mdi-account"
+          />
         </template>
         <v-list-item-title> Action Chart </v-list-item-title>
       </v-list-item>
 
       <v-list-item @click="router.push('/random-number-table')">
-        <template v-slot:prepend>
-          <v-icon color="primary" icon="mdi-dice-multiple" />
+        <template #prepend>
+          <v-icon
+            color="primary"
+            icon="mdi-dice-multiple"
+          />
         </template>
         <v-list-item-title> Random Number Table </v-list-item-title>
       </v-list-item>
 
       <v-list-item @click="router.push('/history')">
-        <template v-slot:prepend>
-          <v-icon color="primary" icon="mdi-history" />
+        <template #prepend>
+          <v-icon
+            color="primary"
+            icon="mdi-history"
+          />
         </template>
         <v-list-item-title> History </v-list-item-title>
       </v-list-item>
 
       <v-list-item @click="router.push('/license')">
-        <template v-slot:prepend>
-          <v-icon color="primary" icon="mdi-license" />
+        <template #prepend>
+          <v-icon
+            color="primary"
+            icon="mdi-license"
+          />
         </template>
         <v-list-item-title> License </v-list-item-title>
       </v-list-item>
     </v-list>
 
-    <template v-slot:append>
+    <template #append>
       <v-divider />
       <v-list class="pa-0">
         <v-list-item class="pa-0">

@@ -9,7 +9,10 @@
     grow
     mandatory
   >
-    <v-btn :disabled="!app.book.isStarted" to="/history">
+    <v-btn
+      :disabled="!app.book.isStarted"
+      to="/history"
+    >
       <v-icon> mdi-history </v-icon>
     </v-btn>
     <v-btn @click="router.push(app.resumePath ?? '/dedication')">
