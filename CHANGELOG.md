@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/pcorbel/kai-master/compare/v1.4.0...v1.5.0) (2026-09-19)
+
+
+### Features
+
+* :sparkles: semantic book content, footnotes, tables and signposts ([b1bd11e](https://github.com/pcorbel/kai-master/commit/b1bd11e62a0832affe65a27652a6831d9d4faa76))
+
 # [1.4.0](https://github.com/pcorbel/kai-master/compare/v1.3.1...v1.4.0) (2025-10-17)
 
 
