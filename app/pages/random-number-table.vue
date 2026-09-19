@@ -5,13 +5,13 @@
     align-items="stretch"
   >
     <v-row
-      v-for="(row, rowIndex) in app.book.randomNumberTable"
+      v-for="(row, rowIndex) in app.meta.randomNumberTable"
       :key="rowIndex"
       align="center"
     >
       <v-col
-        v-for="number in row"
-        :key="`${rowIndex}-${number}`"
+        v-for="(number, colIndex) in row"
+        :key="`${rowIndex}-${colIndex}`"
         class="clickable"
         align="center"
         @click="select(number)"
@@ -49,7 +49,7 @@ useHead({
 // Define functions
 function select(number: number) {
   randomNumber.value = number;
-  if (app.book.combat?.inProgress) {
+  if (app.book.combat.inProgress) {
     app.handleCombatStep(number);
   }
 }

@@ -1,12 +1,18 @@
 <template>
   <!-- Random Number Table Link -->
-  <nuxt-link class="custom-link" to="/random-number-table" variant="text">
+  <nuxt-link class="custom-link" to="/random-number-table">
     <span class="link-content">
       <v-icon class="mr-1" size="1em"> mdi-dice-multiple </v-icon>
-      Random Number Table
+      {{ props.text ?? "Random Number Table" }}
     </span>
   </nuxt-link>
 </template>
+
+<script setup lang="ts">
+const props = defineProps<{
+  text?: string;
+}>();
+</script>
 
 <style scoped>
 .custom-link {
@@ -17,9 +23,5 @@
 .link-content {
   display: inline-flex;
   align-items: center;
-}
-
-.link-content .v-icon {
-  vertical-align: middle;
 }
 </style>

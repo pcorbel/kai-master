@@ -5,17 +5,17 @@
     :model-value="app.downloadInProgress"
     opacity="0.8"
     scrim="background"
+    persistent
   >
     <div class="align-center d-flex flex-column">
       <v-progress-circular class="mb-4" color="primary" indeterminate />
       <span class="font-weight-bold text-center text-text">
-        Downloading {{ app.book.title }}
+        Downloading {{ app.meta.title }}
       </span>
     </div>
   </v-overlay>
 </template>
 
 <script setup lang="ts">
-// Define constants
 const app = useAppStore();
 </script>

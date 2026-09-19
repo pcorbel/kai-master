@@ -1,49 +1,24 @@
 <template>
   <!-- Combat Link -->
-  <nuxt-link
-    class="custom-link"
-    to="/combat"
-    variant="text"
-    @click.stop="goToCombat()"
-  >
+  <a class="custom-link" href="/combat" @click.prevent="goToCombat()">
     <span class="link-content">
       <v-icon class="mr-1" size="1em"> mdi-sword-cross </v-icon>
-      {{ props.name }}: COMBAT SKILL {{ props.combatSkill }} ENDURANCE
-      {{ props.endurance }}
+      {{ props.enemy.name }}: COMBAT SKILL {{ props.enemy.combatSkill }} ENDURANCE
+      <template v-if="props.enemy.enduranceLabel">({{ props.enemy.enduranceLabel }})</template>
+      {{ props.enemy.endurance }}
     </span>
-  </nuxt-link>
+  </a>
 </template>
 
 <script setup lang="ts">
 const app = useAppStore();
 const router = useRouter();
 const props = defineProps<{
-  name: string;
-  combatSkill: string;
-  endurance: string;
+  enemy: CombatStats;
 }>();
 
-// Define functions
 function goToCombat() {
-  const combatRatio =
-    app.book.actionChart.combatSkill - parseInt(props.combatSkill);
-  app.book.combat = {
-    name: props.name,
-    loneWolfCombatSkill: app.book.actionChart.combatSkill,
-    enemyCombatSkill: parseInt(props.combatSkill),
-    combatRatio: combatRatio,
-    boundedCombatRatio: Math.max(-11, Math.min(11, combatRatio)),
-    steps: [
-      {
-        id: 0,
-        loneWolfEndurance: app.book.actionChart.endurance,
-        enemyEndurance: parseInt(props.endurance),
-        randomNumber: null,
-      },
-    ],
-    inProgress: true,
-    isEvading: false,
-  };
+  app.startCombat(props.enemy);
   router.push("/combat");
 }
 </script>
@@ -57,9 +32,5 @@ function goToCombat() {
 .link-content {
   display: inline-flex;
   align-items: center;
-}
-
-.link-content .v-icon {
-  vertical-align: middle;
 }
 </style>

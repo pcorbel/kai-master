@@ -137,3 +137,6 @@ dist
 .output/
 .firebaserc
 firebase.json
+
+# local book cache (yarn books:download)
+.cache/

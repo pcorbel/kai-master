@@ -1,94 +1,111 @@
 <template>
-  <!-- Dynamic Paragraph -->
-  <template v-for="(part, index) in parsedContent" :key="index">
-    <component
-      v-if="part.isComponent"
-      v-bind="part.props"
-      :is="components[part.componentName as keyof typeof components]"
-    />
+  <!-- Illustration -->
+  <v-img
+    v-if="paragraph.type === 'image' && paragraph.image"
+    class="mx-auto"
+    :alt="paragraph.image.alt"
+    :src="paragraph.image.src"
+    max-height="480"
+  />
 
-    <span v-else :class="getClass(content.type)">
-      {{ part.text }}
+  <!-- Enemy stats, opens the combat tracker -->
+  <combat-link v-else-if="paragraph.type === 'combat' && paragraph.combat" :enemy="paragraph.combat" />
+
+  <!-- Table (price lists…) -->
+  <v-table v-else-if="paragraph.type === 'table'" class="bg-background" density="compact">
+    <tbody>
+      <tr v-for="(row, rowIndex) in paragraph.rows" :key="rowIndex">
+        <component
+          :is="row.header ? 'th' : 'td'"
+          v-for="(cell, cellIndex) in row.cells"
+          :key="cellIndex"
+          class="text-left"
+        >
+          {{ cell }}
+        </component>
+      </tr>
+    </tbody>
+  </v-table>
+
+  <!-- Everything else is inline runs -->
+  <div v-else :id="paragraph.footnote ? `footnote-${paragraph.footnote}` : undefined" :class="paragraphClass">
+    <span v-if="paragraph.marker" class="marker">{{ paragraph.marker }}</span>
+    <span :class="{ 'flex-grow-1': paragraph.marker }">
+      <template v-for="(run, index) in paragraph.runs" :key="index">
+        <br v-if="run.kind === 'line-break'" />
+        <turn-to-link v-else-if="run.kind === 'section-link'" :number="run.section" :text="run.text" />
+        <action-chart-link v-else-if="run.kind === 'action-chart-link'" :text="run.text" />
+        <random-number-table-link v-else-if="run.kind === 'random-number-link'" :text="run.text" />
+        <a
+          v-else-if="run.kind === 'footnote-ref'"
+          class="footnote-ref text-primary"
+          :href="`#footnote-${run.footnote}`"
+          @click.prevent="scrollToFootnote(run.footnote)"
+        >
+          <sup>{{ run.text }}</sup>
+        </a>
+        <span v-else :class="runClass(run)">{{ run.text }}</span>
+      </template>
     </span>
-  </template>
+  </div>
 </template>
 
 <script setup lang="ts">
-// Imports
-import { computed } from "vue";
-import { VImg } from "vuetify/components";
-import actionChartLink from "@/components/action-chart-link.vue";
-import combatLink from "@/components/combat-link.vue";
-import randomNumberTableLink from "@/components/random-number-table-link.vue";
-import turnToLink from "@/components/turn-to-link.vue";
-
-// Define constants
 const props = defineProps<{
-  content: Paragraph;
+  paragraph: Paragraph;
 }>();
-const components = {
-  "action-chart-link": actionChartLink,
-  "combat-link": combatLink,
-  "random-number-table-link": randomNumberTableLink,
-  "turn-to-link": turnToLink,
-  "v-img": VImg,
-} as const;
-const parsedContent = computed<ContentPart[]>(() => {
-  const componentRegex = /<([a-z-]+)([^>]*)\/>/g;
-  const parts: ContentPart[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
 
-  while ((match = componentRegex.exec(props.content.text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push({
-        isComponent: false,
-        text: props.content.text.slice(lastIndex, match.index),
-      });
-    }
+const PARAGRAPH_CLASSES: Partial<Record<ParagraphType, string>> = {
+  "header-1": "text-h4 font-weight-black",
+  "header-2": "text-h5 font-weight-bold",
+  "header-3": "text-h6 font-weight-bold",
+  deadend: "font-italic font-weight-bold text-center",
+  signpost: "signpost text-center font-italic",
+  poetry: "font-italic pl-4",
+  footnote: "footnote text-body-2 text-medium-emphasis",
+  "list-item": "d-flex",
+};
 
-    const componentName = match[1];
-    const propsString = match[2]!.trim();
-    const componentProps: Record<string, string> = {};
+const paragraphClass = computed(() => PARAGRAPH_CLASSES[props.paragraph.type] ?? "");
 
-    if (propsString) {
-      const propsRegex = /(\w+)="([^"]*)"/g;
-      let propMatch: RegExpExecArray | null;
-      while ((propMatch = propsRegex.exec(propsString)) !== null) {
-        componentProps[propMatch[1]!] = propMatch[2] ?? "";
-      }
-    }
-
-    parts.push({
-      isComponent: true,
-      componentName: componentName!,
-      props: componentProps,
-    });
-
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < props.content.text.length) {
-    parts.push({
-      isComponent: false,
-      text: props.content.text.slice(lastIndex),
-    });
-  }
-
-  return parts;
-});
-
-// Define functions
-function getClass(type: string) {
-  switch (type) {
-    case "header-1":
-      return "text-h4 font-weight-black";
-    case "header-2":
-      return "text-h5 font-weight-bold";
-    case "header-3":
-      return "text-h6 font-weight-bold";
+function runClass(run: InlineRun): string {
+  if (run.kind !== "text") return "";
+  switch (run.style) {
+    case "em":
+      return "font-italic";
+    case "strong":
+      return "font-weight-bold";
+    case "smallcaps":
+      return "smallcaps";
     default:
       return "";
   }
 }
+
+function scrollToFootnote(id: string) {
+  document.getElementById(`footnote-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+}
 </script>
+
+<style scoped>
+.marker {
+  flex: 0 0 auto;
+  min-width: 1.5em;
+}
+.signpost {
+  border: 1px solid rgb(var(--v-theme-border));
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+.footnote {
+  border-top: 1px solid rgb(var(--v-theme-border));
+  padding-top: 8px;
+}
+.footnote-ref {
+  text-decoration: none;
+}
+.smallcaps {
+  font-size: 0.92em;
+  letter-spacing: 0.03em;
+}
+</style>

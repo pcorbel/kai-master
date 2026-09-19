@@ -12,11 +12,11 @@ Kai-Master is a modern, mobile-first Progressive Web Application (PWA) that brin
 
 ## 🌟 Features
 
-- 📚 Play Kai, Magnakai and Grand Master Lone Wolf gamebooks
+- 📚 Play the 20 Kai, Magnakai and Grand Master Lone Wolf gamebooks
 - 📱 Mobile-first design for on-the-go play
 - 🏠 Offline support for uninterrupted adventures
 - 🎲 Interactive combat system
-- 🗺️ Easy navigation through sections
+- 🗺️ Easy navigation through sections, with footnotes, signposts and price lists kept intact
 - 📲 Installable as a PWA for a native app-like experience
 
 ## 🚀 Getting Started
@@ -59,6 +59,23 @@ Once installed, you can launch Kai-Master from your home screen or app drawer, j
 6. Engage in combat using the interactive combat system.
 7. Manage your inventory and stats in the Action Chart.
 8. Try to complete your mission and become a true Kai Master!
+
+## 🛠️ Development
+
+```bash
+yarn                 # install dependencies
+yarn dev             # start the dev server on http://localhost:3000
+yarn test            # unit tests (parser, combat table, store, state migration)
+yarn typecheck       # vue-tsc over the whole app
+yarn books:download  # fetch the 20 Project Aon zips into .cache/books (not committed)
+yarn test:books      # run the parser against every downloaded book and check nothing is lost
+yarn books:dump      # write the parsed books as JSON into .cache/books/json
+```
+
+Books are downloaded from [Project Aon](https://www.projectaon.org) on first play and parsed in the
+browser into a semantic JSON structure (typed paragraphs: text, choice, combat, image, table,
+signpost, footnote…). The same parser powers `yarn books:dump`, so the JSON files it produces are the
+reference data for any other reader built on top of this project.
 
 ## 🤝 Contributing
 

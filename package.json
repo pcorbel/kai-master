@@ -7,28 +7,41 @@
     "dev": "nuxt dev --no-fork",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:books": "vitest run --config vitest.integration.config.ts",
+    "typecheck": "nuxt typecheck",
+    "books:download": "tsx scripts/books.ts download",
+    "books:dump": "tsx scripts/books.ts dump"
   },
   "dependencies": {
     "@chettapong/nuxt-lodash": "2.5.4",
     "@nuxtjs/color-mode": "4.0.1",
-    "@pinia/nuxt": "0.11.3",
+    "@pinia/nuxt": "1.0.2",
     "@vite-pwa/nuxt": "1.1.1",
+    "@vue/devtools-api": "8.2.1",
     "dayjs-nuxt": "2.1.11",
-    "firebase-admin": "14.1.0",
-    "firebase-functions": "7.2.5",
-    "jszip": "3.10.1",
+    "firebase-admin": "14.4.0",
+    "firebase-functions": "7.4.0",
+    "jszip": "3.10.2",
     "localforage": "1.10.0",
-    "nuxt": "4.4.8",
-    "pinia": "3.0.4",
+    "nuxt": "4.5.2",
+    "pinia": "4.0.3",
     "pinia-plugin-persistedstate": "4.7.1",
-    "vue": "3.5.39",
-    "vue-router": "5.1.0",
+    "vue": "3.5.43",
+    "vue-router": "5.3.1",
     "vuetify-nuxt-module": "0.19.5"
   },
   "devDependencies": {
+    "@types/jsdom": "^30",
     "@types/jszip": "3.4.1",
-    "firebase-tools": "15.22.4"
+    "firebase-tools": "15.30.2",
+    "jsdom": "^30",
+    "tsx": "^4",
+    "typescript": "^5.9",
+    "vitest": "^5",
+    "vue-tsc": "^3"
   },
   "volta": {
     "node": "26.3.1"

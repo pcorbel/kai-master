@@ -3,11 +3,7 @@
     <v-row>
       <v-col cols="12">
         <v-list bg-color="background" lines="two">
-          <v-list-item
-            v-for="(item, index) in history"
-            :key="index"
-            :to="item.path"
-          >
+          <v-list-item v-for="item in history" :key="item.id" :to="item.path" :value="item.id">
             <v-list-item-title>
               {{ item.name }}
             </v-list-item-title>
@@ -15,11 +11,7 @@
               {{ $dayjs(item.timestamp).fromNow() }}
             </v-list-item-subtitle>
             <template v-slot:append>
-              <v-btn
-                color="primary"
-                icon="mdi-book-arrow-right"
-                variant="text"
-              />
+              <v-btn color="primary" icon="mdi-book-arrow-right" variant="text" />
             </template>
           </v-list-item>
         </v-list>
@@ -29,19 +21,17 @@
 </template>
 
 <script setup lang="ts">
-// Define constants
 const app = useAppStore();
 
-// Setup navigation state
 app.navigation.showAppbar = true;
 app.navigation.showBottomNav = true;
 app.navigation.title = "History";
-let history = _orderBy(app.book.history, "id", "desc");
-history = _filter(history, function (page) {
-  return page.path.startsWith("/section-");
-});
 
-// Setup page head
+// Most recent first, numbered sections only.
+const history = computed(() =>
+  [...app.book.history].reverse().filter((entry) => entry.path.startsWith("/section-"))
+);
+
 useHead({
   title: "Kai-Master - History",
 });

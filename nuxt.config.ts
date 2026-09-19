@@ -106,6 +106,11 @@ export default defineNuxtConfig({
     },
   },
   vuetify: {
+    moduleOptions: {
+      // Vuetify's useLayout collides with Nuxt's built-in composable; we import
+      // the few Vuetify composables we need explicitly instead.
+      importComposables: false,
+    },
     vuetifyOptions: {
       theme: {
         themes: {

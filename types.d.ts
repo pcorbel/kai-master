@@ -1,35 +1,105 @@
 declare global {
-  interface Book {
+  /** Static metadata about a book in the library. */
+  interface BookMeta {
     id: number;
     title: string;
     code: string;
-    serie: string;
+    serie: "Kai" | "Magnakai" | "Grand Master";
     disciplines: number;
     randomNumberTable: number[][];
-    data: Data;
-    actionChart: ActionChart;
-    combat: Combat;
-    history: SectionHistory[];
-    isInitialized: boolean;
-    isStarted: boolean;
   }
 
-  interface Data {
-    dedication: GenericSection;
-    acknowledgements: GenericSection;
-    theStorySoFar: GenericSection;
-    theGameRules: GenericSection;
-    kaiDisciplines: GenericSection;
-    equipment: GenericSection;
-    combatRules: GenericSection;
-    kaiLevels: GenericSection;
-    loreCircles: GenericSection;
-    improvedDisciplines: GenericSection;
-    kaiWisdom: GenericSection;
-    kaiMap: GenericSection;
-    numberedSections: GenericSection[];
-    license: GenericSection;
+  // ---------------------------------------------------------------------------
+  // Book content (immutable, produced by the parser, cached per book)
+  // ---------------------------------------------------------------------------
+
+  type InlineRun =
+    | { kind: "text"; text: string; style?: "em" | "strong" | "smallcaps" }
+    | { kind: "section-link"; section: number; text: string }
+    | { kind: "action-chart-link"; text: string }
+    | { kind: "random-number-link"; text: string }
+    | { kind: "footnote-ref"; footnote: string; text: string }
+    | { kind: "line-break" };
+
+  type ParagraphType =
+    | "text"
+    | "choice"
+    | "deadend"
+    | "signpost"
+    | "poetry"
+    | "puzzle"
+    | "list-item"
+    | "header-1"
+    | "header-2"
+    | "header-3"
+    | "image"
+    | "combat"
+    | "table"
+    | "footnote";
+
+  interface CombatStats {
+    name: string;
+    combatSkill: number;
+    endurance: number;
+    /** Some enemies track "RESISTANCE points" or "TARGET points" instead of ENDURANCE. */
+    enduranceLabel?: string;
   }
+
+  interface TableRow {
+    header: boolean;
+    cells: string[];
+  }
+
+  interface Paragraph {
+    id: number;
+    type: ParagraphType;
+    /** Inline content. Empty for image, combat and table paragraphs. */
+    runs: InlineRun[];
+    /** List marker for list items ("•", "1.", …). */
+    marker?: string;
+    /** Data URL of the illustration for image paragraphs. */
+    image?: { src: string; alt: string };
+    /** Enemy stats for combat paragraphs. */
+    combat?: CombatStats;
+    /** Rows for table paragraphs. */
+    rows?: TableRow[];
+    /** Footnote id for footnote paragraphs. */
+    footnote?: string;
+  }
+
+  interface Section {
+    key: string;
+    title: string;
+    /** Only for numbered sections. */
+    number?: number;
+    paragraphs: Paragraph[];
+  }
+
+  interface BookContent {
+    version: number;
+    code: string;
+    dedication: Section;
+    acknowledgements: Section;
+    theStorySoFar: Section;
+    theGameRules: Section;
+    kaiDisciplines: Section;
+    equipment: Section;
+    combatRules: Section;
+    kaiLevels: Section;
+    loreCircles?: Section;
+    improvedDisciplines?: Section;
+    kaiWisdom: Section;
+    kaiMap: Section;
+    license: Section;
+    /** Sorted by section number. */
+    numberedSections: Section[];
+    /** Footnote id → footnote content. */
+    footnotes: Record<string, InlineRun[]>;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Game state (mutable, persisted per book)
+  // ---------------------------------------------------------------------------
 
   interface ActionChart {
     combatSkill: number;
@@ -38,80 +108,25 @@ declare global {
     maxEndurance: number;
     beltPouch: number;
     meals: number;
-    kaiDisciplines: {
-      kaiDiscipline1: string;
-      kaiDiscipline2: string;
-      kaiDiscipline3: string;
-      kaiDiscipline4: string;
-      kaiDiscipline5: string;
-      kaiDiscipline6: string;
-      kaiDiscipline7: string;
-      kaiDiscipline8: string;
-      kaiDiscipline9: string;
-      kaiDiscipline10: string;
-      kaiDiscipline11: string;
-      kaiDiscipline12: string;
-    };
-    weapons: {
-      weapon1: string;
-      weapon2: string;
-    };
-    backpackItems: {
-      backpackItem1: string;
-      backpackItem2: string;
-      backpackItem3: string;
-      backpackItem4: string;
-      backpackItem5: string;
-      backpackItem6: string;
-      backpackItem7: string;
-      backpackItem8: string;
-    };
-    specialItems: {
-      specialItem1: string;
-      specialItem2: string;
-      specialItem3: string;
-      specialItem4: string;
-      specialItem5: string;
-      specialItem6: string;
-      specialItem7: string;
-      specialItem8: string;
-      specialItem9: string;
-      specialItem10: string;
-      specialItem11: string;
-      specialItem12: string;
-    };
+    kaiDisciplines: string[];
+    weapons: string[];
+    backpackItems: string[];
+    specialItems: string[];
     notes: string;
   }
-
-  interface GenericSection {
-    id: string;
-    paragraphs: Paragraph[];
-  }
-
-  interface Paragraph {
-    id: number;
-    type: "text" | "header-1" | "header-2" | "header-3" | "image";
-    text: string;
-  }
-
-  interface ComponentPart {
-    isComponent: true;
-    componentName: string;
-    props: Record<string, string>;
-  }
-
-  interface TextPart {
-    isComponent: false;
-    text: string;
-  }
-
-  type ContentPart = ComponentPart | TextPart;
 
   interface SectionHistory {
     id: number;
     name: string;
     path: string;
     timestamp: string;
+  }
+
+  interface Step {
+    id: number;
+    loneWolfEndurance: number;
+    enemyEndurance: number;
+    randomNumber: number | null;
   }
 
   interface Combat {
@@ -125,11 +140,14 @@ declare global {
     steps: Step[];
   }
 
-  interface Step {
-    id: number;
-    loneWolfEndurance: number;
-    enemyEndurance: number;
-    randomNumber: number | null;
+  interface BookState {
+    code: string;
+    /** Version of the parser the cached content was produced with. */
+    contentVersion: number;
+    isStarted: boolean;
+    actionChart: ActionChart;
+    combat: Combat;
+    history: SectionHistory[];
   }
 
   interface CombatResult {
@@ -143,14 +161,6 @@ declare global {
 
   interface CombatResultsTable {
     [randomNumber: number]: CombatResultsRow;
-  }
-
-  interface StorageConfig {
-    storeName: string;
-  }
-  
-  interface CacheData {
-    [key: string]: any;
   }
 }
 

@@ -27,7 +27,7 @@
 
       <v-divider />
 
-      <v-list-subheader> {{ app.book.title }} </v-list-subheader>
+      <v-list-subheader> {{ app.meta.title }} </v-list-subheader>
 
       <v-list-group>
         <template v-slot:activator="{ props }">
@@ -40,53 +40,50 @@
         </template>
 
         <v-list-item @click="router.push('/dedication')">
-          {{ app.book.data.dedication.id }}
+          {{ app.content!.dedication!.title }}
         </v-list-item>
 
         <v-list-item @click="router.push('/acknowledgements')">
-          {{ app.book.data.acknowledgements.id }}
+          {{ app.content!.acknowledgements!.title }}
         </v-list-item>
 
         <v-list-item @click="router.push('/the-story-so-far')">
-          {{ app.book.data.theStorySoFar.id }}
+          {{ app.content!.theStorySoFar!.title }}
         </v-list-item>
 
         <v-list-item @click="router.push('/the-game-rules')">
-          {{ app.book.data.theGameRules.id }}
+          {{ app.content!.theGameRules!.title }}
         </v-list-item>
 
         <v-list-item @click="router.push('/kai-disciplines')">
-          {{ app.book.data.kaiDisciplines.id }}
+          {{ app.content!.kaiDisciplines!.title }}
         </v-list-item>
 
         <v-list-item @click="router.push('/equipment')">
-          {{ app.book.data.equipment.id }}
+          {{ app.content!.equipment!.title }}
         </v-list-item>
 
         <v-list-item @click="router.push('/combat-rules')">
-          {{ app.book.data.combatRules.id }}
+          {{ app.content!.combatRules!.title }}
         </v-list-item>
 
         <v-list-item @click="router.push('/levels-of-kai-training')">
-          {{ app.book.data.kaiLevels.id }}
+          {{ app.content!.kaiLevels!.title }}
+        </v-list-item>
+
+        <v-list-item v-if="app.content!.loreCircles" @click="router.push('/lore-circles')">
+          {{ app.content!.loreCircles!.title }}
         </v-list-item>
 
         <v-list-item
-          v-if="app.book.serie === 'Magnakai'"
-          @click="router.push('/lore-circles')"
-        >
-          {{ app.book.data.loreCircles.id }}
-        </v-list-item>
-
-        <v-list-item
-          v-if="['Magnakai', 'Grand Master'].includes(app.book.serie)"
+          v-if="app.content!.improvedDisciplines"
           @click="router.push('/improved-disciplines')"
         >
-          {{ app.book.data.improvedDisciplines.id }}
+          {{ app.content!.improvedDisciplines!.title }}
         </v-list-item>
 
         <v-list-item @click="router.push('/kai-wisdom')">
-          {{ app.book.data.kaiWisdom.id }}
+          {{ app.content!.kaiWisdom!.title }}
         </v-list-item>
       </v-list-group>
 
@@ -101,15 +98,11 @@
         </template>
 
         <v-list-item
-          v-for="section in _orderBy(
-            app.book.data.numberedSections,
-            (s) => parseInt(s.id.replace('Section ', '')),
-            'asc'
-          )"
-          :key="section.id"
-          @click="router.push(`/section-${section.id.replace('Section ', '')}`)"
+          v-for="section in app.content!.numberedSections"
+          :key="section.key"
+          @click="router.push(`/section-${section.number}`)"
         >
-          {{ section.id }}
+          {{ section.title }}
         </v-list-item>
       </v-list-group>
 

@@ -9,12 +9,12 @@
         Random Number
       </v-col>
       <v-col class="font-weight-bold" align="end" cols="4">
-        {{ app.book.combat?.name }} Endurance
+        {{ app.book.combat.name }} Endurance
       </v-col>
     </v-row>
 
     <!-- Header Values -->
-    <v-row v-for="step in app.book.combat?.steps" :key="step.id">
+    <v-row v-for="step in app.book.combat.steps" :key="step.id">
       <v-col align="start" cols="4">
         {{ step.loneWolfEndurance }}
       </v-col>
@@ -27,7 +27,7 @@
     </v-row>
 
     <!-- Combat Steps -->
-    <v-row v-if="app.book.combat?.inProgress">
+    <v-row v-if="app.book.combat.inProgress">
       <v-col cols="6">
         <v-btn
           block

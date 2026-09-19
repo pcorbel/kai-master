@@ -1,17 +1,18 @@
-export default defineEventHandler(async (event) => {
-  // Extract the book code
-  const code = event.context.params?.code;
+import { BOOK_CODES } from "#shared/utils/books";
 
-  // Check if the book code is provided
-  if (!code) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Book code is required",
-    });
+/** Proxies a book zip from Project Aon so the browser can fetch it same-origin. */
+export default defineEventHandler(async (event) => {
+  const code = getRouterParam(event, "code") ?? "";
+  if (!BOOK_CODES.has(code)) {
+    throw createError({ statusCode: 404, statusMessage: "Unknown book code" });
   }
 
-  // Fetch the book data from the Project Aon website
-  return await $fetch(
-    `https://www.projectaon.org/en/xhtml/lw/${code}/${code}.zip`
+  const zip = await $fetch<ArrayBuffer>(
+    `https://www.projectaon.org/en/xhtml/lw/${code}/${code}.zip`,
+    { responseType: "arrayBuffer" }
   );
+
+  setHeader(event, "Content-Type", "application/zip");
+  setHeader(event, "Cache-Control", "public, max-age=86400");
+  return Buffer.from(zip);
 });

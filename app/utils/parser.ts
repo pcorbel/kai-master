@@ -1,605 +1,488 @@
 import JSZip from "jszip";
 
-const BASE_DIR = "en/xhtml/lw/*/";
+/**
+ * Bump whenever the shape of BookContent changes so cached content gets
+ * re-downloaded and re-parsed.
+ */
+export const CONTENT_VERSION = 2;
 
-// Main function to fetch and process book data
-export async function fetchBookdata(code: string) {
-  // Fetch and unzip book file
-  const url = `/api/books/${code}`;
-  const response = await fetchWithRetry(url, {
-    responseType: "blob",
-    method: "GET",
-  });
-  const blob = new Blob([response as BlobPart]);
-  const zipFile = new File([blob], "downloaded.zip", {
-    type: "application/zip",
-  });
+/** Rules/front-matter files of a Project Aon book and the content key they map to. */
+const SECTION_FILES: Record<string, keyof BookContent> = {
+  "dedicate.htm": "dedication",
+  "acknwldg.htm": "acknowledgements",
+  "tssf.htm": "theStorySoFar",
+  "gamerulz.htm": "theGameRules",
+  "discplnz.htm": "kaiDisciplines",
+  "equipmnt.htm": "equipment",
+  "cmbtrulz.htm": "combatRules",
+  "levels.htm": "kaiLevels",
+  "lorecrcl.htm": "loreCircles",
+  "imprvdsc.htm": "improvedDisciplines",
+  "kaiwisdm.htm": "kaiWisdom",
+  "map.htm": "kaiMap",
+  "license.htm": "license",
+};
 
-  const zip = new JSZip();
-  const contents = await zip.loadAsync(zipFile);
+/** Files that only exist for some series. */
+const OPTIONAL_FILES = new Set(["lorecrcl.htm", "imprvdsc.htm"]);
 
-  // Process each file from the zip
-  const data = {} as Data;
-  data.numberedSections = [];
+const MIME_BY_EXTENSION: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+};
 
-  for (const [fileName, file] of Object.entries(contents.files)) {
-    if (file.dir) continue;
-    const content = await file.async("text");
+export type ImageResolver = (
+  src: string,
+  alt: string
+) => Promise<{ src: string; alt: string } | null>;
 
-    // Route each file to correct extractor based on filename
-    if (fileName.endsWith("dedicate.htm")) {
-      data.dedication = await extractDedication(content);
-    } else if (fileName.endsWith("acknwldg.htm")) {
-      data.acknowledgements = await extractAcknowledgements(content);
-    } else if (fileName.endsWith("tssf.htm")) {
-      data.theStorySoFar = await extractTheStorySoFar(content);
-    } else if (fileName.endsWith("gamerulz.htm")) {
-      data.theGameRules = await extractTheGameRules(content);
-    } else if (fileName.endsWith("discplnz.htm")) {
-      data.kaiDisciplines = await extractKaiDisciplines(content, contents);
-    } else if (fileName.endsWith("equipmnt.htm")) {
-      data.equipment = await extractEquipment(content, contents);
-    } else if (fileName.endsWith("cmbtrulz.htm")) {
-      data.combatRules = await extractCombatRules(content);
-    } else if (fileName.endsWith("levels.htm")) {
-      data.kaiLevels = await extractKaiLevels(content);
-    } else if (fileName.endsWith("lorecrcl.htm")) {
-      data.loreCircles = await extractLoreCircles(content);
-    } else if (fileName.endsWith("imprvdsc.htm")) {
-      data.improvedDisciplines = await extractImprovedDisciplines(content);
-    } else if (fileName.endsWith("kaiwisdm.htm")) {
-      data.kaiWisdom = await extractKaiWisdom(content);
-    } else if (fileName.endsWith("map.htm")) {
-      data.kaiMap = await extractKaiMap(content, contents);
-    } else if (fileName.endsWith("license.htm")) {
-      data.license = await extractLicense(content);
-    } else if (fileName.match(/sect\d+\.htm$/i)) {
-      const matchResult = fileName.match(
-        /sect(\d+)\.htm$/i
-      ) as RegExpMatchArray;
-      const sectionNumber = matchResult[1];
-      const result = await extractNumberedSection(
-        content,
-        sectionNumber!,
-        contents
-      );
-      data.numberedSections.push(result);
-    }
-  }
-
-  return data;
+export interface ExtractOptions {
+  key: string;
+  /** Forces the title (numbered sections). Otherwise the first heading is used. */
+  title?: string;
+  number?: number;
+  images?: ImageResolver;
+  footnotes?: Record<string, InlineRun[]>;
+  warn?: (message: string) => void;
 }
 
-// Main section extraction function used by all specific extractors
-export async function extractSection(
-  html: string,
-  defaultId: string,
-  zipContents?: JSZip,
-  overrideId?: boolean
-): Promise<GenericSection> {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+const squash = (text: string | null | undefined) =>
+  (text ?? "").replace(/\s+/g, " ").trim();
 
-  // Find main content div
-  const mainTextDiv =
-    doc.querySelector(".maintext") || doc.querySelector(".table-responsive");
-  if (!mainTextDiv) throw new Error("Main text div not found");
+/** Plain text of an element, footnote markers excluded. */
+function plainText(element: Element): string {
+  const clone = element.cloneNode(true) as Element;
+  clone.querySelectorAll("sup").forEach((sup) => sup.remove());
+  return squash(clone.textContent);
+}
 
-  const result: GenericSection = { id: defaultId, paragraphs: [] };
-  let paragraphId = 1;
-  let isFirstHeading = true;
+/** Plain text of a paragraph, useful for titles, search and tests. */
+export function paragraphText(paragraph: Paragraph): string {
+  if (paragraph.type === "combat" && paragraph.combat) {
+    const { name, combatSkill, endurance, enduranceLabel } = paragraph.combat;
+    const label = enduranceLabel ? `ENDURANCE (${enduranceLabel})` : "ENDURANCE";
+    return `${name}: COMBAT SKILL ${combatSkill} ${label} ${endurance}`;
+  }
+  if (paragraph.type === "table" && paragraph.rows) {
+    return paragraph.rows.map((row) => row.cells.join(" | ")).join("\n");
+  }
+  return runsText(paragraph.runs);
+}
 
-  // Process DOM tree recursively
-  async function processNode(node: Node): Promise<void> {
-    if (node.nodeType === Node.ELEMENT_NODE) {
-      const element = node as Element;
+export function runsText(runs: InlineRun[]): string {
+  return runs
+    .map((run) => (run.kind === "line-break" ? "\n" : run.text))
+    .join("")
+    .trim();
+}
 
-      if (isHeadingElement(element)) {
-        processHeading(element);
-      } else if (element.tagName === "DD") {
-        processDefinitionDescription(element);
-      } else if (element.tagName === "FIGURE") {
-        const img = element.querySelector("img.img-responsive");
-        if (img) await processImage(img);
-      } else if (element.tagName === "UL" || element.tagName === "OL") {
-        const listResults = await processList(element);
-        result.paragraphs.push(...listResults);
-      } else if (
-        isTextElement(element) &&
-        !element.closest("ol") &&
-        !element.closest("ul")
-      ) {
-        processTextContent(element);
-      } else {
-        for (const childNode of element.childNodes) {
-          await processNode(childNode);
-        }
-      }
-    } else if (isMainTextNode(node)) {
-      processTextNode(node);
+// -----------------------------------------------------------------------------
+// Book level
+// -----------------------------------------------------------------------------
+
+/**
+ * Parses a Project Aon XHTML book zip into immutable, semantic book content.
+ * Pure: needs a DOM (browser or jsdom) but no network and no Nuxt.
+ */
+export async function parseBookZip(
+  zipData: ArrayBuffer | Uint8Array | Blob,
+  code: string,
+  warn: (message: string) => void = () => {}
+): Promise<BookContent> {
+  const zip = await JSZip.loadAsync(zipData);
+
+  // Index entries by basename. Entries under the book's own folder win.
+  const byName = new Map<string, JSZip.JSZipObject>();
+  for (const entry of Object.values(zip.files)) {
+    if (entry.dir) continue;
+    const base = entry.name.split("/").pop()!.toLowerCase();
+    const current = byName.get(base);
+    if (!current || entry.name.includes(`/lw/${code}/`)) byName.set(base, entry);
+  }
+  const text = (name: string) => byName.get(name)?.async("text");
+
+  const images = createImageResolver(byName);
+  const footnotes = parseFootnotes((await text("footnotz.htm")) ?? "");
+  const shared = { images, footnotes, warn };
+
+  const content: Partial<BookContent> = {
+    version: CONTENT_VERSION,
+    code,
+    footnotes,
+    numberedSections: [],
+  };
+
+  for (const [file, key] of Object.entries(SECTION_FILES)) {
+    const html = await text(file);
+    if (!html) {
+      if (!OPTIONAL_FILES.has(file)) throw new Error(`Book ${code} is missing ${file}`);
+      continue;
     }
+    (content as Record<string, unknown>)[key] = await extractSection(html, {
+      key,
+      ...shared,
+    });
   }
 
-  // Helper to check if node is main text content
-  function isMainTextNode(node: Node): boolean {
-    return node.nodeType === Node.TEXT_NODE && node.parentNode === mainTextDiv;
-  }
-
-  // Helper function to identify heading elements
-  function isHeadingElement(element: Element): boolean {
-    return element.tagName.match(/^H\d$/) !== null || element.tagName === "DT";
-  }
-
-  // Helper for paragraphs, list items and definition descriptions
-  function isTextElement(element: Element): boolean {
-    return ["P", "LI", "DD"].includes(element.tagName);
-  }
-
-  // Process section headings and update section ID
-  function processHeading(element: Element): void {
-    const headingText = element.textContent?.trim() || "";
-
-    if (isFirstHeading && element.tagName.match(/^H\d$/)) {
-      isFirstHeading = false;
-      if (!overrideId) {
-        result.id = headingText || defaultId;
-      }
-    } else {
-      // Handle different header levels
-      let headerType: Paragraph["type"];
-      switch (element.tagName) {
-        case "H2":
-          headerType = "header-1";
-          break;
-        case "H3":
-          headerType = "header-2";
-          break;
-        case "H4":
-          headerType = "header-3";
-          break;
-        case "DT":
-          headerType = "header-3";
-          break;
-        default:
-          headerType = "text";
-      }
-      addParagraph(headerType, headingText);
-    }
-  }
-
-  // Process lists, handling both numbered and bulleted items plus images
-  async function processList(element: Element): Promise<Paragraph[]> {
-    const results: Paragraph[] = [];
-    let localParagraphId = paragraphId;
-
-    for (const li of Array.from(element.children)) {
-      // Extract text content excluding figures
-      let content = li.cloneNode(true) as Element;
-      content.querySelectorAll("figure").forEach((fig) => fig.remove());
-      let textContent = content.textContent?.trim() || "";
-
-      textContent = textContent
-        .replace(/\[illustration\]/gi, "")
-        .replace(/\s*\n+\s*/g, " ")
-        .trim();
-
-      if (textContent) {
-        // Handle numbered items (e.g. "1 = Sword") vs regular items
-        const match = textContent.match(/^(\d+)\s*=\s*(.+?)(?:\n|$)/);
-        if (match) {
-          const [, number, itemText] = match;
-          results.push({
-            id: localParagraphId++,
-            type: "text",
-            text: `${number} = ${itemText!.trim()}`,
-          });
-        } else {
-          results.push({
-            id: localParagraphId++,
-            type: "text",
-            text: `• ${textContent}`,
-          });
-        }
-      }
-
-      // Process any images in the list item
-      const figure = li.querySelector("figure");
-      if (figure) {
-        const img = figure.querySelector("img.img-responsive");
-        if (img) {
-          const imgResult = await processItemImage(img, localParagraphId++);
-          if (imgResult) results.push(imgResult);
-        }
-      }
-    }
-
-    paragraphId = localParagraphId;
-    return results;
-  }
-
-  // Process definition lists (dt/dd pairs)
-  async function processDefinitionDescription(element: Element): Promise<void> {
-    const content = element.innerHTML;
-    // Split on br tags and clean up each item
-    const items = content
-      .split(/<br\s*\/?>/i)
-      .map((item) => {
-        const temp = document.createElement("div");
-        temp.innerHTML = item;
-        return temp.textContent?.trim() || "";
+  for (const [name, entry] of byName) {
+    const match = name.match(/^sect(\d+)\.htm$/);
+    if (!match) continue;
+    const number = parseInt(match[1]!, 10);
+    content.numberedSections!.push(
+      await extractSection(await entry.async("text"), {
+        key: `sect${number}`,
+        title: `Section ${number}`,
+        number,
+        ...shared,
       })
-      .filter((item) => item);
-
-    const joinedText = items.join(", ");
-    if (joinedText) addParagraph("text", joinedText);
-  }
-
-  // Core image processing logic
-  async function processImageToBase64(
-    element: Element,
-    zipContents: JSZip
-  ): Promise<{ imgData: string; imgType: string } | null> {
-    const imgSrc = element.getAttribute("src");
-    if (!imgSrc) return null;
-
-    const cleanImgSrc = imgSrc.replace(/^\.\//, "").replace(/^\//, "");
-    const imgPatterns = [
-      cleanImgSrc,
-      `${BASE_DIR}${cleanImgSrc}`,
-      cleanImgSrc.replace(/^.*[\\\/]/, ""),
-      `**/${cleanImgSrc}`,
-    ];
-
-    for (const imgPattern of imgPatterns) {
-      const matchingFiles = Object.keys(zipContents.files).filter(
-        (filename) => {
-          const pattern = imgPattern
-            .replace("*", "[^/]+")
-            .replace(/\//g, "\\/")
-            .replace(/\./g, "\\.")
-            .replace(/\[/g, "\\[")
-            .replace(/\]/g, "\\]");
-          return filename.match(new RegExp(pattern, "i"));
-        }
-      );
-
-      if (matchingFiles.length > 0) {
-        const fullImgPath = matchingFiles[0];
-        const imgFile = zipContents.file(fullImgPath!);
-        if (imgFile) {
-          try {
-            const imgData = await imgFile.async("base64");
-            const imgType = imgSrc.toLowerCase().endsWith(".png")
-              ? "png"
-              : "jpeg";
-            return { imgData, imgType };
-          } catch (error) {
-            console.error(`Error processing image ${fullImgPath}:`, error);
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  // Process images in list items
-  async function processItemImage(
-    element: Element,
-    id: number
-  ): Promise<Paragraph | null> {
-    if (!zipContents) return null;
-
-    const result = await processImageToBase64(element, zipContents);
-    if (!result) return null;
-
-    return {
-      id,
-      type: "image",
-      text: `<v-img src="data:image/${result.imgType};base64,${result.imgData}" />`,
-    };
-  }
-
-  // Process standalone images
-  async function processImage(img: Element): Promise<void> {
-    if (!zipContents) return;
-
-    const result = await processImageToBase64(img, zipContents);
-    if (result) {
-      addParagraph(
-        "image",
-        `<v-img src="data:image/${result.imgType};base64,${result.imgData}" />`
-      );
-    }
-  }
-
-  // Process regular text content, handling links and special formatting
-  function processTextContent(element: Element): void {
-    if (element.classList.contains("combat")) {
-      processCombatParagraph(element);
-    } else {
-      const tempElement = document.createElement("div");
-      tempElement.innerHTML = element.innerHTML;
-
-      // Remove footnotes
-      const supElements = tempElement.querySelectorAll("sup");
-      supElements.forEach((sup) => sup.remove());
-
-      let content = tempElement.innerHTML.trim();
-
-      // Convert links to special components
-      content = content.replace(
-        /<a[^>]*href="([^"]*)"[^>]*>(.*?)<\/a>/g,
-        (match, href, text) => {
-          if (href.match(/sect\d+\.htm/)) {
-            const number = href.match(/sect(\d+)\.htm/)[1];
-            return `<turn-to-link number="${number}" text="${text}" />`;
-          } else if (href === "action.htm") {
-            return "<action-chart-link />";
-          } else if (href === "random.htm") {
-            return "<random-number-table-link />";
-          }
-          return text;
-        }
-      );
-
-      // Handle special terms
-      content = content.replace(/ENDURANCE/g, "ENDURANCE");
-      content = content.replace(/COMBAT SKILL/g, "COMBAT SKILL");
-
-      // Clean up HTML entities
-      content = content.replace(/&nbsp;/g, " ");
-      content = content.replace(/&amp;/g, "&");
-      content = content.replace(/&lt;/g, "<");
-      content = content.replace(/&gt;/g, ">");
-      content = content.replace(/&quot;/g, '"');
-      content = content.replace(/&#39;/g, "'");
-      content = content.replace(/&mdash;/g, "—");
-      content = content.replace(/&ndash;/g, "—");
-
-      // Clean up remaining HTML
-      content = content.replace(
-        /<(?!\/?(turn-to-link|action-chart-link|random-number-table-link|image-component))[^>]+>/g,
-        ""
-      );
-
-      content = content.replace(/\s+/g, " ").trim();
-
-      if (content) addParagraph("text", content);
-    }
-  }
-
-  // Process combat stat blocks
-  function processCombatParagraph(element: Element): void {
-    const tempElement = document.createElement("div");
-    tempElement.innerHTML = element.innerHTML;
-
-    const supElements = tempElement.querySelectorAll("sup");
-    supElements.forEach((sup) => sup.remove());
-
-    let content = tempElement.textContent || "";
-    content = content.replace(/\s+/g, " ").trim();
-
-    // Extract combat stats and create combat component
-    const match = content.match(
-      /^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(\d+)$/i
     );
+  }
+  content.numberedSections!.sort((a, b) => a.number! - b.number!);
 
+  if (content.numberedSections!.length === 0) {
+    throw new Error(`Book ${code} has no numbered sections`);
+  }
+  return content as BookContent;
+}
+
+function createImageResolver(byName: Map<string, JSZip.JSZipObject>): ImageResolver {
+  const cache = new Map<string, Promise<string | null>>();
+  return async (src, alt) => {
+    const base = src.split("/").pop()!.toLowerCase();
+    if (!cache.has(base)) {
+      const entry = byName.get(base);
+      const mime = MIME_BY_EXTENSION[base.split(".").pop() ?? ""];
+      cache.set(
+        base,
+        entry && mime
+          ? entry.async("base64").then((data) => `data:${mime};base64,${data}`)
+          : Promise.resolve(null)
+      );
+    }
+    const dataUrl = await cache.get(base)!;
+    return dataUrl ? { src: dataUrl, alt } : null;
+  };
+}
+
+/**
+ * Parses footnotz.htm. Each footnote is `[<a>n</a>] (<a>Section n</a>) text…`
+ * and is keyed by the fragment identifier the section refers to (`sect113-1`).
+ */
+export function parseFootnotes(html: string): Record<string, InlineRun[]> {
+  const footnotes: Record<string, InlineRun[]> = {};
+  if (!html) return footnotes;
+  const doc = new DOMParser().parseFromString(html, "text/html");
+
+  for (const div of Array.from(doc.querySelectorAll(".footnote"))) {
+    const paragraph = div.querySelector("p") ?? div;
+    const anchors = Array.from(paragraph.querySelectorAll("a"));
+    const target = anchors[0]?.getAttribute("href")?.split("#")[1];
+    if (!target) continue;
+
+    // Drop the "[n]" back-link and the "(Section n)" origin link, keep the note.
+    const clone = paragraph.cloneNode(true) as Element;
+    const cloneAnchors = Array.from(clone.querySelectorAll("a"));
+    cloneAnchors[0]?.remove();
+    const prefix = squash(clone.textContent).slice(0, 4);
+    if (cloneAnchors[1] && prefix.startsWith("[] (")) cloneAnchors[1].remove();
+
+    const runs = inlineRuns(clone, {});
+    const first = runs[0];
+    if (first?.kind === "text") {
+      first.text = first.text.replace(/^\s*\[\s*\]\s*(\(\s*\)\s*)?/, "");
+      if (!first.text) runs.shift();
+    }
+    footnotes[target] = runs;
+  }
+  return footnotes;
+}
+
+// -----------------------------------------------------------------------------
+// Section level
+// -----------------------------------------------------------------------------
+
+interface InlineContext {
+  refs?: { id: string; label: string }[];
+}
+
+/**
+ * Converts one Project Aon page into a Section: a flat list of typed
+ * paragraphs whose inline content is a list of runs.
+ */
+export async function extractSection(html: string, options: ExtractOptions): Promise<Section> {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const main = doc.querySelector(".maintext");
+  if (!main) throw new Error(`Main text not found in ${options.key}`);
+
+  const section: Section = {
+    key: options.key,
+    title: options.title ?? "",
+    paragraphs: [],
+  };
+  if (options.number !== undefined) section.number = options.number;
+
+  const refs: { id: string; label: string }[] = [];
+  const context: InlineContext = { refs };
+  // The first heading is the page title (or the bare section number); it is
+  // consumed, not rendered.
+  let titleTaken = false;
+  let nextId = 1;
+
+  const add = (paragraph: Omit<Paragraph, "id">) => {
+    section.paragraphs.push({ id: nextId++, ...paragraph });
+  };
+
+  const addRuns = (type: ParagraphType, element: Element, extra: Partial<Paragraph> = {}) => {
+    const runs = inlineRuns(element, context);
+    if (runs.length) add({ type, runs, ...extra });
+  };
+
+  const addImage = async (img: Element) => {
+    if (!options.images) return;
+    const src = img.getAttribute("src");
+    if (!src) return;
+    const image = await options.images(src, img.getAttribute("alt") ?? "");
+    if (image) add({ type: "image", runs: [], image });
+    else options.warn?.(`${options.key}: image not found in zip: ${src}`);
+  };
+
+  const addCombat = (element: Element) => {
+    const text = plainText(element);
+    const match = text.match(
+      /^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(?:\(([^)]*)\)\s*)?(\d+)\s*$/i
+    );
     if (match) {
-      const [, name, combatSkill, endurance] = match;
-      const combatButton = `<combat-link name="${name}" combatSkill="${combatSkill}" endurance="${endurance}" />`;
-      addParagraph("text", combatButton);
+      const combat: CombatStats = {
+        name: match[1]!.trim(),
+        combatSkill: parseInt(match[2]!, 10),
+        endurance: parseInt(match[4]!, 10),
+      };
+      if (match[3]) combat.enduranceLabel = squash(match[3]);
+      add({ type: "combat", runs: [], combat });
     } else {
-      addParagraph("text", content);
+      options.warn?.(`${options.key}: unrecognised combat block: ${text}`);
+      addRuns("text", element);
     }
-  }
+  };
 
-  // Process text nodes
-  function processTextNode(node: Node): void {
-    const textContent = node.textContent?.trim();
-    if (textContent) addParagraph("text", textContent);
-  }
+  const addTable = (table: Element) => {
+    const rows: TableRow[] = [];
+    for (const tr of Array.from(table.querySelectorAll("tr"))) {
+      const cells = Array.from(tr.children).map((cell) => plainText(cell));
+      if (cells.every((cell) => !cell)) continue;
+      const header = Array.from(tr.children).every((cell) => cell.tagName === "TH");
+      rows.push({ header, cells });
+    }
+    if (rows.length) add({ type: "table", runs: [], rows });
+  };
 
-  // Add paragraph to results
-  function addParagraph(type: Paragraph["type"], text: string): void {
-    result.paragraphs.push({ id: paragraphId++, type, text });
-  }
-
-  // Start processing from root node
-  await processNode(mainTextDiv);
-  return result;
-}
-
-// Specialized extractors for each section type
-export async function extractNumberedSection(
-  html: string,
-  sectionNumber: string,
-  zipContents: JSZip
-): Promise<GenericSection> {
-  return extractSection(html, `Section ${sectionNumber}`, zipContents, true);
-}
-
-export async function extractDedication(html: string): Promise<GenericSection> {
-  return extractSection(html, "dedication") as Promise<GenericSection>;
-}
-
-export async function extractAcknowledgements(
-  html: string
-): Promise<GenericSection> {
-  return extractSection(html, "acknowledgements") as Promise<GenericSection>;
-}
-
-export async function extractTheStorySoFar(
-  html: string
-): Promise<GenericSection> {
-  return extractSection(html, "theStorySoFar") as Promise<GenericSection>;
-}
-
-export async function extractTheGameRules(
-  html: string
-): Promise<GenericSection> {
-  return extractSection(html, "theGameRules") as Promise<GenericSection>;
-}
-
-export async function extractKaiDisciplines(
-  html: string,
-  zipContents: JSZip
-): Promise<GenericSection> {
-  return extractSection(
-    html,
-    "kaiDisciplines",
-    zipContents
-  ) as Promise<GenericSection>;
-}
-
-export async function extractEquipment(
-  html: string,
-  zipContents: JSZip
-): Promise<GenericSection> {
-  return extractSection(
-    html,
-    "equipment",
-    zipContents
-  ) as Promise<GenericSection>;
-}
-
-export async function extractKaiLevels(html: string): Promise<GenericSection> {
-  return extractSection(html, "kaiLevels") as Promise<GenericSection>;
-}
-
-export async function extractLoreCircles(
-  html: string
-): Promise<GenericSection> {
-  return extractSection(html, "loreCircles") as Promise<GenericSection>;
-}
-
-export async function extractImprovedDisciplines(
-  html: string
-): Promise<GenericSection> {
-  return extractSection(html, "improvedDisciplines") as Promise<GenericSection>;
-}
-
-export async function extractKaiWisdom(html: string): Promise<GenericSection> {
-  return extractSection(html, "kaiWisdom") as Promise<GenericSection>;
-}
-
-export async function extractCombatRules(
-  html: string
-): Promise<GenericSection> {
-  return extractSection(html, "combatRules") as Promise<GenericSection>;
-}
-
-export async function extractKaiMap(
-  html: string,
-  zipContents: JSZip
-): Promise<GenericSection> {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-
-  const imgElement = doc.querySelector(".img-responsive") as Element;
-  const imageSrc = imgElement?.getAttribute("src") || "";
-
-  if (!imageSrc) {
-    throw new Error("Map image source not found");
-  }
-
-  const imgPattern = `${BASE_DIR}${imageSrc}`;
-  const matchingFiles = Object.keys(zipContents.files).filter((filename) =>
-    filename.match(new RegExp(imgPattern.replace("*", "[^/]+")))
-  );
-
-  if (matchingFiles.length === 0) {
-    throw new Error(`Image file not found in zip: ${imgPattern}`);
-  }
-
-  const fullImgPath = matchingFiles[0];
-  const imgFile = zipContents.file(fullImgPath!);
-
-  if (!imgFile) {
-    throw new Error(`Image file not found in zip: ${fullImgPath}`);
-  }
-
-  try {
-    const imgData = await imgFile.async("base64");
-    const content = `<v-img :src="data:image/png;base64,${imgData}" />`;
-    const result: GenericSection = {
-      id: "Map of the Lastlands",
-      paragraphs: [
-        {
-          id: 1,
-          type: "text",
-          text: content,
-        },
-      ],
-    };
-
-    return result;
-  } catch (error) {
-    console.error(`Error processing image ${fullImgPath}:`, error);
-    throw error;
-  }
-}
-
-export async function extractLicense(html: string): Promise<GenericSection> {
-  return extractSection(html, "license") as Promise<GenericSection>;
-}
-
-// Utility function to delay execution
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Helper function to get error message regardless of error type
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return String(error);
-}
-
-// Custom fetch function with retry logic
-async function fetchWithRetry(
-  url: string,
-  options: any = {},
-  maxRetries = 3,
-  baseDelay = 1000
-) {
-  let lastError: unknown;
-
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const response = await $fetch(url, {
-        ...options,
-        retry: attempt + 1,
-        onResponse({ response }: { response: any }) {
-          // Validate content length if available
-          const expectedLength = response.headers.get("content-length");
-          const actualLength = response._data?.length;
-
-          if (
-            expectedLength &&
-            actualLength &&
-            expectedLength !== actualLength.toString()
-          ) {
-            throw new Error("Content length mismatch");
-          }
-        },
-      });
-
-      return response;
-    } catch (error: unknown) {
-      lastError = error;
-      console.error(`Attempt ${attempt + 1} failed:`, error);
-
-      if (attempt === maxRetries - 1) {
-        throw new Error(
-          `Failed after ${maxRetries} attempts: ${getErrorMessage(error)}`
-        );
+  const addList = async (list: Element) => {
+    const ordered = list.tagName === "OL";
+    let index = 0;
+    for (const li of Array.from(list.children)) {
+      if (li.tagName !== "LI") continue;
+      index++;
+      const clone = li.cloneNode(true) as Element;
+      clone.querySelectorAll("figure, ul, ol, table").forEach((nested) => nested.remove());
+      const runs = inlineRuns(clone, context);
+      if (runs.length) {
+        const text = runsText(runs);
+        const marker = ordered ? `${index}.` : /^\d+\s*=/.test(text) ? "" : "•";
+        add({ type: "list-item", runs, marker });
       }
-
-      // Exponential backoff with jitter
-      const jitter = Math.random() * 200;
-      const waitTime = baseDelay * Math.pow(2, attempt) + jitter;
-      await delay(waitTime);
+      for (const child of Array.from(li.children)) {
+        if (["FIGURE", "UL", "OL", "TABLE"].includes(child.tagName)) await block(child);
+      }
     }
+  };
+
+  async function block(node: Node): Promise<void> {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = squash(node.textContent);
+      if (text) add({ type: "text", runs: [{ kind: "text", text }] });
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const element = node as Element;
+    const tag = element.tagName;
+
+    if (/^H[1-6]$/.test(tag)) {
+      if (!titleTaken) {
+        titleTaken = true;
+        if (!options.title) section.title = plainText(element);
+      } else {
+        const type: ParagraphType = tag === "H2" ? "header-1" : tag === "H3" ? "header-2" : "header-3";
+        addRuns(type, element);
+      }
+      return;
+    }
+
+    switch (tag) {
+      case "P": {
+        const cls = element.classList;
+        if (cls.contains("combat")) return addCombat(element);
+        const type: ParagraphType = cls.contains("choice")
+          ? "choice"
+          : cls.contains("deadend")
+            ? "deadend"
+            : cls.contains("puzzle")
+              ? "puzzle"
+              : "text";
+        return addRuns(type, element);
+      }
+      case "FIGURE":
+        for (const img of Array.from(element.querySelectorAll("img"))) await addImage(img);
+        return;
+      case "IMG":
+        return addImage(element);
+      case "UL":
+      case "OL":
+        return addList(element);
+      case "DL":
+        for (const child of Array.from(element.children)) {
+          if (child.tagName === "DT") addRuns("header-3", child);
+          else if (child.tagName === "DD") addRuns("text", child);
+        }
+        return;
+      case "BLOCKQUOTE":
+        return addRuns(element.classList.contains("poetry") ? "poetry" : "text", element);
+      case "TABLE":
+        return addTable(element);
+      case "DIV":
+        if (element.classList.contains("signpost")) return addRuns("signpost", element);
+        break;
+      case "SCRIPT":
+      case "STYLE":
+        return;
+      default:
+        if (isInlineTag(tag)) return addRuns("text", element);
+    }
+    for (const child of Array.from(element.childNodes)) await block(child);
   }
 
-  throw new Error(`Operation failed: ${getErrorMessage(lastError)}`);
+  for (const child of Array.from(main.childNodes)) await block(child);
+
+  // Footnotes referenced from this page are appended so they read in place.
+  const seen = new Set<string>();
+  for (const ref of refs) {
+    if (seen.has(ref.id)) continue;
+    seen.add(ref.id);
+    const note = options.footnotes?.[ref.id];
+    if (!note) {
+      options.warn?.(`${options.key}: footnote ${ref.id} not found`);
+      continue;
+    }
+    add({
+      type: "footnote",
+      footnote: ref.id,
+      runs: [{ kind: "text", text: `[${ref.label}] ` }, ...structuredCloneRuns(note)],
+    });
+  }
+
+  return section;
+}
+
+const INLINE_TAGS = new Set(["A", "SPAN", "EM", "I", "CITE", "STRONG", "B", "SUP", "SUB", "BR", "SMALL", "Q"]);
+const isInlineTag = (tag: string) => INLINE_TAGS.has(tag);
+
+const structuredCloneRuns = (runs: InlineRun[]): InlineRun[] =>
+  runs.map((run) => ({ ...run }));
+
+// -----------------------------------------------------------------------------
+// Inline level
+// -----------------------------------------------------------------------------
+
+type TextStyle = "em" | "strong" | "smallcaps";
+
+/** Converts the children of an element into normalised inline runs. */
+export function inlineRuns(element: Element, context: InlineContext): InlineRun[] {
+  const runs: InlineRun[] = [];
+
+  const pushText = (text: string, style?: TextStyle) => {
+    const normalised = text.replace(/\s+/g, " ");
+    if (!normalised) return;
+    const last = runs[runs.length - 1];
+    if (last?.kind === "text" && last.style === style) last.text += normalised;
+    else runs.push(style ? { kind: "text", text: normalised, style } : { kind: "text", text: normalised });
+  };
+
+  const walk = (node: Node, style?: TextStyle): void => {
+    if (node.nodeType === Node.TEXT_NODE) return pushText(node.textContent ?? "", style);
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const el = node as Element;
+    const walkChildren = (s = style) => el.childNodes.forEach((child) => walk(child, s));
+
+    switch (el.tagName) {
+      case "BR":
+        runs.push({ kind: "line-break" });
+        return;
+      case "A": {
+        const href = el.getAttribute("href") ?? "";
+        const text = plainText(el);
+        const footnote = href.match(/^#(.+)-foot$/);
+        if (footnote) {
+          const id = footnote[1]!;
+          context.refs?.push({ id, label: text });
+          runs.push({ kind: "footnote-ref", footnote: id, text });
+          return;
+        }
+        const sect = href.match(/^sect(\d+)\.htm$/);
+        if (sect) {
+          runs.push({ kind: "section-link", section: parseInt(sect[1]!, 10), text });
+          return;
+        }
+        if (href === "action.htm") return void runs.push({ kind: "action-chart-link", text });
+        if (href === "random.htm") return void runs.push({ kind: "random-number-link", text });
+        // Cross-book links, map, errata, index pages: keep the words, drop the link.
+        return walkChildren();
+      }
+      case "SUP": {
+        // Footnote markers are wrapped in pretty-printed whitespace; keep only the link.
+        const anchor = el.querySelector("a");
+        if (anchor) return walk(anchor, style);
+        return walkChildren();
+      }
+      case "SPAN":
+        return walkChildren(el.classList.contains("smallcaps") ? "smallcaps" : style);
+      case "EM":
+      case "I":
+      case "CITE":
+        return walkChildren("em");
+      case "STRONG":
+      case "B":
+        return walkChildren("strong");
+      case "FIGURE":
+      case "IMG":
+      case "SCRIPT":
+        return;
+      default:
+        return walkChildren();
+    }
+  };
+
+  element.childNodes.forEach((child) => walk(child));
+  return normaliseRuns(runs);
+}
+
+/** Trims whitespace at the edges and around line breaks; collapses repeated breaks. */
+function normaliseRuns(runs: InlineRun[]): InlineRun[] {
+  const out: InlineRun[] = [];
+  for (const run of runs) {
+    const last = out[out.length - 1];
+    if (run.kind === "line-break") {
+      if (last?.kind === "text") last.text = last.text.replace(/\s+$/, "");
+      if (!last || last.kind === "line-break") continue;
+      out.push(run);
+      continue;
+    }
+    const copy = { ...run };
+    if (!last || last.kind === "line-break") copy.text = copy.text.replace(/^\s+/, "");
+    if (copy.text || copy.kind !== "text") out.push(copy);
+  }
+  while (out.length && out[out.length - 1]!.kind === "line-break") out.pop();
+  const last = out[out.length - 1];
+  if (last?.kind === "text") last.text = last.text.replace(/\s+$/, "");
+  return out.filter((run) => run.kind !== "text" || run.text !== "");
 }

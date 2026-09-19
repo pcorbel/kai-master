@@ -12,7 +12,8 @@
 </template>
 
 <script setup lang="ts">
-// Define constants
+import { useTheme } from "vuetify";
+
 const app = useAppStore();
 const colorMode = useColorMode();
 const theme = useTheme();

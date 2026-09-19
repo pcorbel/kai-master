@@ -1,10 +1,6 @@
 <template>
   <!-- Turn To Link -->
-  <nuxt-link
-    class="custom-link"
-    :to="`/section-${props.number}`"
-    variant="text"
-  >
+  <nuxt-link class="custom-link" :to="`/section-${props.number}`">
     <span class="link-content">
       <v-icon class="mr-1" size="1em"> mdi-book-arrow-right </v-icon>
       {{ props.text }}
@@ -13,9 +9,8 @@
 </template>
 
 <script setup lang="ts">
-// Define constants
 const props = defineProps<{
-  number: string;
+  number: number;
   text: string;
 }>();
 </script>
@@ -29,9 +24,5 @@ const props = defineProps<{
 .link-content {
   display: inline-flex;
   align-items: center;
-}
-
-.link-content .v-icon {
-  vertical-align: middle;
 }
 </style>
