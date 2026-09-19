@@ -1,22 +1,39 @@
----
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /.github/workflows
-    schedule:
-      interval: daily
-    commit-message:
-      prefix: chore
-      include: scope
-    labels:
-      - dependencies
-
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
     commit-message:
       prefix: chore
       include: scope
-    labels:
-      - dependencies
+    groups:
+      # These move together and are pointless to review separately.
+      nuxt:
+        patterns: ["nuxt", "@nuxt/*", "@nuxtjs/*", "vue", "vue-router", "vue-tsc", "@pinia/*", "pinia", "pinia-plugin-persistedstate"]
+      vuetify:
+        patterns: ["vuetify", "vuetify-nuxt-module"]
+      testing:
+        patterns: ["vitest", "@vitest/*", "@playwright/*", "jsdom", "@types/jsdom"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # Actions float on their major tag, so patches and minors arrive on their
+    # own; this is what raises the major bumps.
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: chore
+      include: scope

@@ -1,0 +1,56 @@
+# Build outputs
+.output
+.nuxt
+.nitro
+dist
+
+# Local book cache and dumps (yarn books:download)
+.cache
+
+# Dependencies are installed inside the image from the lockfile
+node_modules
+.yarn/cache
+.yarn/install-state.gz
+.yarn/unplugged
+
+# VCS / editors
+.git
+.github
+.gitignore
+.vscode
+.idea
+.devcontainer
+
+# Tests and tooling: nothing here is needed to build the Nitro bundle
+tests
+e2e
+scripts
+coverage
+test-results
+playwright-report
+blob-report
+playwright.config.ts
+vitest.config.ts
+vitest.integration.config.ts
+tsconfig.e2e.json
+**/*.test.ts
+
+# Local env files
+.env
+.env.*
+
+# Docker artifacts
+Dockerfile
+.dockerignore
+compose*.yml
+docker-compose*.yml
+
+# Docs
+*.md
+!package.json
+LICENSE
+CODEOWNERS
+
+# Misc
+.DS_Store
+*.log

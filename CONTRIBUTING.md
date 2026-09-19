@@ -63,7 +63,7 @@ After making your changes:
 
 3. Generate a production build of the app:
    ```bash
-   yarn generate
+   yarn build
    ```
 
 4. Preview the generated app to ensure it works correctly in a production-like environment:

@@ -1,0 +1,178 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+# Least privilege by default; the jobs that need more ask for it.
+permissions:
+  contents: read
+
+# Stacked pushes to the same ref cancel each other rather than racing to
+# publish `latest`.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Third-party actions are referenced by major version tag, so a patch or minor
+# release is picked up without a commit here. Dependabot's github-actions
+# ecosystem raises the major bumps.
+jobs:
+  # One job, fail-fast: lint, typecheck and unit tests come before the build,
+  # and the browser download comes after it, so a lint error does not pay for
+  # Chromium. The e2e tier previews the `.output` this same job just built.
+  verify:
+    name: Lint, typecheck, test, e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          # package.json is the single source of truth for the Node version:
+          # setup-node reads `volta.node`, the same pin the Dockerfile uses.
+          node-version-file: package.json
+
+      # Node 26 ships without Corepack. `packageManager` in package.json
+      # selects the Yarn version once Corepack is enabled.
+      - name: Enable corepack
+        run: npm install -g corepack@latest && corepack enable
+
+      # setup-node's own `cache: yarn` runs `yarn cache dir` before Corepack
+      # is enabled, which means Yarn 1 refusing the v4 lockfile. Cache Yarn
+      # 4's global directory directly instead.
+      - name: Cache Yarn
+        uses: actions/cache@v6
+        with:
+          path: ~/.yarn/berry/cache
+          key: yarn-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: yarn-${{ runner.os }}-
+
+      - name: Install dependencies
+        # --immutable: fail rather than quietly resolving something the
+        # lockfile did not sanction.
+        run: yarn install --immutable
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Typecheck e2e
+        run: yarn typecheck:e2e
+
+      - name: Test
+        run: yarn test
+
+      - name: Build
+        # The gate on the image: if the Nitro bundle does not compile, nothing
+        # gets published. It is also what the e2e tier previews below.
+        run: yarn build
+
+      # Keyed on the lockfile: the browser build is tied to the Playwright
+      # version, so a bump re-downloads and nothing else does.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Install Chromium
+        # --with-deps still has to run on a cache hit: it installs the system
+        # libraries the browser links against, which live outside the cache.
+        run: yarn test:e2e:install
+
+      - name: End-to-end
+        # Hermetic: e2e/books-stub.ts stands in for Project Aon, so the suite
+        # neither depends on nor hammers their servers.
+        env:
+          DEBUG: pw:webserver
+        run: yarn test:e2e
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  image:
+    name: Build and push image
+    runs-on: ubuntu-latest
+    needs: [verify]
+    # One image, one tag: `latest`. Watchtower on the homelab deploys it, so
+    # a green build of main ships; `verify` is the only gate. Rolling back is
+    # reverting the commit and letting the next build overwrite the tag. On a
+    # pull request or on develop the image still builds, so a broken
+    # Dockerfile fails the check, it just does not push.
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GHCR
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Kept for the OCI labels (source, revision, created), which are how
+      # you work out what a `latest` pulled last week actually was.
+      - name: Image labels
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: type=raw,value=latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  release:
+    name: Semantic release
+    runs-on: ubuntu-latest
+    needs: [image]
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # semantic-release walks history to work out the next version.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+
+      # Tags the release and updates CHANGELOG.md from conventional commits.
+      # The release commit is marked [skip ci], so it does not rebuild.
+      - uses: cycjimmy/semantic-release-action@v6
+        with:
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

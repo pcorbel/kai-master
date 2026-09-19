@@ -70,12 +70,34 @@ yarn typecheck       # vue-tsc over the whole app
 yarn books:download  # fetch the 20 Project Aon zips into .cache/books (not committed)
 yarn test:books      # run the parser against every downloaded book and check nothing is lost
 yarn books:dump      # write the parsed books as JSON into .cache/books/json
+yarn lint            # ESLint, and the formatter (no Prettier here): yarn lint:fix formats
+yarn build && yarn test:e2e   # Playwright smoke tier against the built output and a stubbed Project Aon
 ```
 
 Books are downloaded from [Project Aon](https://www.projectaon.org) on first play and parsed in the
 browser into a semantic JSON structure (typed paragraphs: text, choice, combat, image, table,
 signpost, footnote…). The same parser powers `yarn books:dump`, so the JSON files it produces are the
 reference data for any other reader built on top of this project.
+
+## 🚢 Deployment
+
+Pushed to `main`, a green CI run (`.github/workflows/ci.yml`: lint, typecheck, unit
+tests, build, e2e) publishes a single `latest` image to
+`ghcr.io/pcorbel/kai-master` and watchtower on the homelab rolls it out. Merging
+ships; the `verify` job is the gate. No other tag is published, so a rollback is
+a revert commit rather than a pin to an older image; the OCI labels on `latest`
+carry the revision it was built from.
+
+The container is stateless and unprivileged: reading progress lives in the
+reader's browser, books are fetched from Project Aon through `/api/books` and
+cached by the PWA. Traefik terminates TLS. The live compose file is in the
+homelab `arr-stack` repository. The only runtime setting is
+`NUXT_BOOKS_BASE_URL`, which defaults to `https://www.projectaon.org`.
+
+```bash
+docker build -t kai-master .
+docker run --rm -p 3000:3000 kai-master
+```
 
 ## 🤝 Contributing
 
