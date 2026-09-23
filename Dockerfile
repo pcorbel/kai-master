@@ -2,7 +2,7 @@
 #
 # Digest-pinned so a rebuild is reproducible and Dependabot owns the bumps.
 # The version matches `volta.node` in package.json, which is also what CI runs.
-FROM node:26.3.1-alpine@sha256:a2dc166a387cc6ca1e62d0c8e265e49ca985d6e60abc9fe6e6c3d6ce8e63f606 AS base
+FROM node:26.9.0-alpine@sha256:dbaa92e5758cbbcf85d65d5403fdb530fe3442cbe8c6dbfb7ef23365450d5070 AS base
 
 # ---------------------------------------------------------------------------
 # deps: dependency install, cached independently of the source.
