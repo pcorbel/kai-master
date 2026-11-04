@@ -169,7 +169,7 @@ jobs:
 
       # Tags the release and updates CHANGELOG.md from conventional commits.
       # The release commit is marked [skip ci], so it does not rebuild.
-      - uses: cycjimmy/semantic-release-action@v6
+      - uses: cycjimmy/semantic-release-action@v8
         with:
           extra_plugins: |
             @semantic-release/changelog
